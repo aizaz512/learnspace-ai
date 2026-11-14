@@ -4,16 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.documents import router as documents_router
 from app.api.routes.assistant import router as assistant_router
 
-from app.core.config import (
-    CORS_ORIGINS,
-    UPLOAD_DIR,
-)
+from app.core.config import CORS_ORIGINS
 
 from app.core.supabase_auth import SupabaseAuthMiddleware
 
-
-# Keep local application folders used by quiz storage and other services.
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
     title="LearnSpace AI API",
