@@ -20,3 +20,7 @@ dist/
 # Testing
 .pytest_cache/
 .coverage
+
+backend/.env
+backend/.venv/
+backend/uploads/
