@@ -2072,7 +2072,7 @@ function App() {
                               }
                               className="font-semibold text-indigo-600 hover:text-indigo-800"
                             >
-                              Open subject â†’
+                              Open subject →
                             </button>
 
                           </div>
