@@ -151,21 +151,21 @@ const initialTasks: StudyTask[] = [
     id: 1,
     title: "Complete Neural Networks assignment",
     subject: "Machine Learning",
-    due: "Today Â· 8:00 PM",
+    due: "Today · 8:00 PM",
     done: false,
   },
   {
     id: 2,
     title: "Revise Image Classification",
     subject: "Computer Vision",
-    due: "Tomorrow Â· 10:00 AM",
+    due: "Tomorrow · 10:00 AM",
     done: false,
   },
   {
     id: 3,
     title: "Practice Binary Trees",
     subject: "Data Structures",
-    due: "Nov 6 Â· 2:00 PM",
+    due: "Nov 6 · 2:00 PM",
     done: false,
   },
 ];
@@ -1875,7 +1875,7 @@ function App() {
                   </p>
 
                   <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-[28px]">
-                    Welcome back, {authUserName} ðŸ‘‹
+                    Welcome back, {authUserName} 👋
                   </h1>
 
                   <p className="mt-1.5 text-sm text-slate-500">
@@ -2617,7 +2617,7 @@ function App() {
           <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/70 pt-5 text-[10px] text-slate-400">
 
             <span>
-              Â© 2026 LearnSpace AI. Your intelligent learning space.
+              © 2026 LearnSpace AI. Your intelligent learning space.
             </span>
 
             <span>
