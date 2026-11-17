@@ -1,3 +1,4 @@
+
 import {
   lazy,
   Suspense,
@@ -87,6 +88,10 @@ import ProfilePage from "./pages/ProfilePage";
 
 const NotesPage = lazy(() => import("./pages/NotesPage.tsx"));
 
+const MyNotebooksPage = lazy(
+  () => import("./pages/MyNotebooksPage.tsx")
+);
+
 
 // ============================================
 // NAVIGATION
@@ -118,9 +123,6 @@ const navigation = [
     ],
   },
 ];
-
-
-
 
 
 // ============================================
@@ -434,6 +436,7 @@ function App() {
   const [semesterReloadToken, setSemesterReloadToken] =
     useState(0);
 
+
   const [subjects, setSubjects] =
     useState<Subject[]>([]);
 
@@ -449,6 +452,7 @@ function App() {
   const previousSubjectsUserId =
     useRef<string | null>(null);
 
+
   const [chapters, setChapters] =
     useState<Chapter[]>([]);
 
@@ -460,6 +464,7 @@ function App() {
 
   const [chapterReloadToken, setChapterReloadToken] =
     useState(0);
+
 
   const [notes, setNotes] = useState<Note[]>([]);
 
@@ -489,6 +494,7 @@ function App() {
   const noteSaveVersions =
     useRef<Map<number, number>>(new Map());
 
+
   const [pdfDocuments, setPdfDocuments] =
     useState<PdfDocument[]>([]);
 
@@ -501,6 +507,10 @@ function App() {
 
   const [selectedChapterId, setSelectedChapterId] =
     useState<number | null>(null);
+
+  // Remember which page opened the Notes editor.
+  const [notesReturnNav, setNotesReturnNav] =
+    useState<"Chapters" | "My Notebooks">("Chapters");
 
 
   // ==========================================
@@ -1218,6 +1228,56 @@ function App() {
   }
 
 
+  // ==========================================
+  // NOTEBOOK MANAGEMENT
+  // ==========================================
+
+  async function handleCreateNotebook(
+    subjectId: number,
+    title: string,
+    description: string
+  ): Promise<void> {
+    const subject = subjects.find(
+      (item) => item.id === subjectId
+    );
+
+    if (!subject) {
+      throw new Error(
+        "The selected subject could not be found."
+      );
+    }
+
+    const subjectChapters = chapters.filter(
+      (chapter) => chapter.subjectId === subjectId
+    );
+
+    const nextPosition =
+      subjectChapters.length > 0
+        ? Math.max(
+            ...subjectChapters.map(
+              (chapter) => chapter.position
+            )
+          ) + 1
+        : 1;
+
+    const newChapter = await createChapterInSupabase({
+      subjectId,
+      title,
+      description,
+      position: nextPosition,
+    });
+
+    const nextChapters = [...chapters, newChapter];
+
+    setChapters(nextChapters);
+
+    updateSubjectChapterStats(
+      subjectId,
+      nextChapters
+    );
+  }
+
+
   async function handleUpdateChapter(
     id: number,
     title: string,
@@ -1347,6 +1407,7 @@ function App() {
 
 
   function handleOpenNotes(chapter: Chapter) {
+    setNotesReturnNav("Chapters");
     setSelectedChapterId(chapter.id);
     setActiveNav("Notes");
   }
@@ -2355,6 +2416,51 @@ function App() {
             )
 
 
+          ) : activeNav === "My Notebooks" ? (
+
+            <Suspense
+              fallback={
+                <div className="flex min-h-[400px] items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-9 w-9 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
+
+                    <p className="text-sm font-medium text-slate-500">
+                      Loading your notebooks...
+                    </p>
+                  </div>
+                </div>
+              }
+            >
+              <MyNotebooksPage
+                subjects={subjects}
+                chapters={chapters}
+                notes={notes}
+                isLoading={
+                  subjectsLoading ||
+                  chaptersLoading ||
+                  notesLoading
+                }
+                loadError={
+                  subjectsError ||
+                  chaptersError ||
+                  notesError
+                }
+                onRetryLoad={() => {
+                  setSubjectReloadToken((current) => current + 1);
+                  setChapterReloadToken((current) => current + 1);
+                  setNotesReloadToken((current) => current + 1);
+                }}
+                onOpenNotebook={(chapter) => {
+                  setNotesReturnNav("My Notebooks");
+                  setSelectedSubjectId(chapter.subjectId);
+                  setSelectedChapterId(chapter.id);
+                  setActiveNav("Notes");
+                }}
+                onCreateNotebook={handleCreateNotebook}
+              />
+            </Suspense>
+
+
           ) : activeNav === "My Subjects" ? (
 
             (semestersLoading || subjectsLoading) ? (
@@ -2498,7 +2604,7 @@ function App() {
               <NotesPage
                 chapter={selectedChapter}
                 notes={selectedChapterNotes}
-                onBack={() => setActiveNav("Chapters")}
+                onBack={() => setActiveNav(notesReturnNav)}
                 onAddNote={() =>
                   handleAddNote(selectedChapter.id)
                 }

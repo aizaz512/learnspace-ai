@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 
@@ -18,7 +19,11 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-import { askDocumentQuestion } from "../services/assistant";
+import {
+  askDocumentQuestion,
+  generateDocumentSummary,
+} from "../services/assistant";
+
 import type { AssistantSource } from "../services/assistant";
 
 interface ChatMessage {
@@ -116,11 +121,106 @@ function formatUpdatedAt(value: string) {
   });
 }
 
+
+// ============================================
+// DETECT FULL-DOCUMENT SUMMARY REQUESTS
+// ============================================
+
+function isFullDocumentSummaryRequest(question: string): boolean {
+  const normalized = question
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const asksForOverview =
+    /\b(summarize|summarise|summary|overview|outline|recap)\b/.test(
+      normalized
+    );
+
+  const mentionsDocument =
+    /\b(pdf|document|file)\b/.test(normalized);
+
+  const asksWhatDocumentContains =
+    /\b(what|whats)\b.*\b(pdf|document|file)\b.*\b(about|contain|cover|include)\b/.test(
+      normalized
+    );
+
+  const asksForKeyPoints =
+    /\b(key points?|main topics?|most important concepts?|key concepts?)\b/.test(
+      normalized
+    );
+
+  return (
+    (asksForOverview && mentionsDocument) ||
+    asksWhatDocumentContains ||
+    asksForKeyPoints
+  );
+}
+
+
+// ============================================
+// RENDER CLICKABLE PDF PAGE REFERENCES
+// ============================================
+
+function renderCitedMessage(
+  content: string,
+  onSourceClick: (pageNumber: number) => void
+) {
+  const parts = content.split(
+    /(\[Page\s+\d+\])/gi
+  );
+
+  return parts.map((part, index) => {
+    const citation = part.match(
+      /^\[Page\s+(\d+)\]$/i
+    );
+
+    if (!citation) {
+      return (
+        <span key={`text-${index}`}>
+          {part}
+        </span>
+      );
+    }
+
+    const pageNumber = Number(citation[1]);
+
+    return (
+      <button
+        key={`citation-${index}`}
+        type="button"
+        onClick={() => onSourceClick(pageNumber)}
+        title={`Open PDF page ${pageNumber}`}
+        aria-label={`Navigate to PDF page ${pageNumber}`}
+        className="mx-0.5 inline-flex cursor-pointer items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 underline decoration-indigo-300 underline-offset-2 transition hover:bg-indigo-100 hover:text-indigo-900"
+      >
+        Page {pageNumber}
+      </button>
+    );
+  });
+}
+
+
+// ============================================
+// DOCUMENT ASSISTANT
+// ============================================
+
 export default function DocumentAssistant(
   props: DocumentAssistantProps
 ) {
-  return <DocumentAssistantSession key={props.documentId} {...props} />;
+  return (
+    <DocumentAssistantSession
+      key={props.documentId}
+      {...props}
+    />
+  );
 }
+
+
+// ============================================
+// DOCUMENT ASSISTANT SESSION
+// ============================================
 
 function DocumentAssistantSession({
   documentId,
@@ -152,16 +252,27 @@ function DocumentAssistantSession({
     useState<string | null>(initialData.activeId);
 
   const [question, setQuestion] = useState("");
+
   const [loading, setLoading] = useState(false);
+
+  const [loadingMode, setLoadingMode] =
+    useState<"question" | "summary">("question");
+
   const [error, setError] = useState("");
+
   const [storageWarning, setStorageWarning] = useState("");
+
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const [expandedSources, setExpandedSources] = useState<
     Record<string, boolean>
   >({});
 
-  // Save conversations automatically.
+
+  // ==========================================
+  // SAVE CONVERSATIONS AUTOMATICALLY
+  // ==========================================
+
   useEffect(() => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(conversations));
@@ -175,6 +286,11 @@ function DocumentAssistantSession({
     }
   }, [storageKey, conversations]);
 
+
+  // ==========================================
+  // DERIVED DATA
+  // ==========================================
+
   const sortedConversations = [...conversations].sort(
     (a, b) =>
       new Date(b.updatedAt).getTime() -
@@ -187,6 +303,11 @@ function DocumentAssistantSession({
 
   const messages = activeConversation?.messages ?? [];
 
+
+  // ==========================================
+  // NEW CONVERSATION
+  // ==========================================
+
   function handleNewConversation() {
     if (loading) return;
 
@@ -196,6 +317,11 @@ function DocumentAssistantSession({
     setExpandedSources({});
     setHistoryOpen(false);
   }
+
+
+  // ==========================================
+  // SELECT CONVERSATION
+  // ==========================================
 
   function handleSelectConversation(conversationId: string) {
     if (loading) return;
@@ -207,7 +333,14 @@ function DocumentAssistantSession({
     setHistoryOpen(false);
   }
 
-  function handleRenameConversation(conversation: SavedConversation) {
+
+  // ==========================================
+  // RENAME CONVERSATION
+  // ==========================================
+
+  function handleRenameConversation(
+    conversation: SavedConversation
+  ) {
     if (loading) return;
 
     const newTitle = window
@@ -230,6 +363,11 @@ function DocumentAssistantSession({
       )
     );
   }
+
+
+  // ==========================================
+  // DELETE CONVERSATION
+  // ==========================================
 
   function handleDeleteConversation(conversationId: string) {
     if (loading) return;
@@ -259,6 +397,11 @@ function DocumentAssistantSession({
     }
   }
 
+
+  // ==========================================
+  // SEND QUESTION OR FULL-DOCUMENT REQUEST
+  // ==========================================
+
   async function sendQuestion(value: string) {
     const trimmedQuestion = value.trim();
 
@@ -273,6 +416,13 @@ function DocumentAssistantSession({
       setError("Your question cannot exceed 1000 characters.");
       return;
     }
+
+    const useFullDocumentSummary =
+      isFullDocumentSummaryRequest(trimmedQuestion);
+
+    setLoadingMode(
+      useFullDocumentSummary ? "summary" : "question"
+    );
 
     setQuestion("");
     setError("");
@@ -316,7 +466,10 @@ function DocumentAssistantSession({
           conversation.id === targetId
             ? {
                 ...conversation,
-                messages: [...conversation.messages, userMessage],
+                messages: [
+                  ...conversation.messages,
+                  userMessage,
+                ],
                 updatedAt: now,
               }
             : conversation
@@ -327,19 +480,39 @@ function DocumentAssistantSession({
     setLoading(true);
 
     try {
-      const result = await askDocumentQuestion(
-        documentId,
-        trimmedQuestion
-      );
+      let assistantContent: string;
+
+      let assistantSources: AssistantSource[] | undefined;
+
+      if (useFullDocumentSummary) {
+        // Process the complete extracted PDF instead of only
+        // retrieving the five most relevant chunks.
+        const result = await generateDocumentSummary(documentId);
+
+        assistantContent = result.summary;
+
+      } else {
+        // Use normal RAG retrieval for specific questions.
+        const result = await askDocumentQuestion(
+          documentId,
+          trimmedQuestion
+        );
+
+        assistantContent = result.answer;
+        assistantSources = result.sources;
+      }
 
       const assistantMessage: ChatMessage = {
         id: createMessageId(),
         role: "assistant",
-        content: result.answer,
-        sources: result.sources,
+        content: assistantContent,
+        ...(assistantSources
+          ? { sources: assistantSources }
+          : {}),
       };
 
       const updatedAt = new Date().toISOString();
+
       const targetId = conversationId;
 
       setConversations((current) =>
@@ -356,21 +529,33 @@ function DocumentAssistantSession({
             : conversation
         )
       );
+
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
           : "Something went wrong. Please try again."
       );
+
     } finally {
       setLoading(false);
     }
   }
 
+
+  // ==========================================
+  // FORM SUBMISSION
+  // ==========================================
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void sendQuestion(question);
   }
+
+
+  // ==========================================
+  // ENTER KEY HANDLING
+  // ==========================================
 
   function handleKeyDown(
     event: KeyboardEvent<HTMLTextAreaElement>
@@ -381,6 +566,11 @@ function DocumentAssistantSession({
     }
   }
 
+
+  // ==========================================
+  // TOGGLE SOURCES
+  // ==========================================
+
   function toggleSources(messageId: string) {
     setExpandedSources((current) => ({
       ...current,
@@ -388,10 +578,18 @@ function DocumentAssistantSession({
     }));
   }
 
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
     <section className="flex h-[700px] min-h-[500px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      {/* Header */}
+
+      {/* HEADER */}
+
       <div className="flex items-center gap-3 border-b border-slate-100 bg-white p-4">
+
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
           <Bot size={22} />
         </div>
@@ -407,6 +605,7 @@ function DocumentAssistantSession({
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+
           <button
             type="button"
             onClick={() => setHistoryOpen((current) => !current)}
@@ -415,7 +614,9 @@ function DocumentAssistantSession({
             className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-2 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
           >
             <History size={14} />
+
             History
+
             <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[9px]">
               {conversations.length}
             </span>
@@ -430,13 +631,18 @@ function DocumentAssistantSession({
             <Plus size={14} />
             New
           </button>
+
         </div>
       </div>
 
-      {/* Conversation history */}
+
+      {/* CONVERSATION HISTORY */}
+
       {historyOpen && (
         <div className="max-h-48 overflow-y-auto border-b border-slate-200 bg-white p-3">
+
           <div className="mb-2 flex items-center justify-between">
+
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Previous conversations
             </p>
@@ -448,6 +654,7 @@ function DocumentAssistantSession({
             >
               Close
             </button>
+
           </div>
 
           {sortedConversations.length === 0 ? (
@@ -457,6 +664,7 @@ function DocumentAssistantSession({
             </p>
           ) : (
             <div className="space-y-2">
+
               {sortedConversations.map((conversation) => {
                 const isActive =
                   conversation.id === activeConversationId;
@@ -470,6 +678,7 @@ function DocumentAssistantSession({
                         : "border-slate-100 bg-white"
                     }`}
                   >
+
                     <button
                       type="button"
                       onClick={() =>
@@ -511,25 +720,34 @@ function DocumentAssistantSession({
                     >
                       <Trash2 size={13} />
                     </button>
+
                   </div>
                 );
               })}
+
             </div>
           )}
+
         </div>
       )}
 
-      {/* Storage warning */}
+
+      {/* STORAGE WARNING */}
+
       {storageWarning && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-[10px] text-amber-800">
           {storageWarning}
         </div>
       )}
 
-      {/* Messages */}
+
+      {/* MESSAGES */}
+
       <div className="flex-1 space-y-5 overflow-y-auto bg-slate-50/60 p-4">
+
         {messages.length === 0 && (
           <div className="flex min-h-full flex-col items-center justify-center py-8 text-center">
+
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
               <BookOpen size={30} />
             </div>
@@ -539,11 +757,12 @@ function DocumentAssistantSession({
             </h3>
 
             <p className="mt-2 max-w-xs text-xs leading-5 text-slate-500">
-              Ask anything about this PDF. I&apos;ll find relevant
+              Ask anything about this PDF. I'll find relevant
               information and provide page references.
             </p>
 
             <div className="mt-6 w-full space-y-2 text-left">
+
               <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Try asking
               </p>
@@ -560,12 +779,18 @@ function DocumentAssistantSession({
                     size={15}
                     className="shrink-0 text-indigo-500"
                   />
+
                   {suggestion}
                 </button>
               ))}
+
             </div>
+
           </div>
         )}
+
+
+        {/* CHAT MESSAGES */}
 
         {messages.map((message) => (
           <div
@@ -576,6 +801,7 @@ function DocumentAssistantSession({
                 : "flex-row"
             }`}
           >
+
             <div
               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
                 message.role === "user"
@@ -590,6 +816,7 @@ function DocumentAssistantSession({
               )}
             </div>
 
+
             <div
               className={`min-w-0 max-w-[88%] rounded-2xl p-3 ${
                 message.role === "user"
@@ -597,19 +824,31 @@ function DocumentAssistantSession({
                   : "rounded-tl-sm border border-slate-200 bg-white text-slate-800"
               }`}
             >
+
               <p className="whitespace-pre-wrap break-words text-xs leading-6">
-                {message.content}
+                {message.role === "assistant"
+                  ? renderCitedMessage(
+                      message.content,
+                      onSourceClick
+                    )
+                  : message.content}
               </p>
+
+
+              {/* SOURCES FOR QUESTION ANSWERS */}
 
               {message.role === "assistant" &&
                 message.sources &&
                 message.sources.length > 0 && (
+
                   <div className="mt-4 border-t border-slate-100 pt-3">
+
                     <button
                       type="button"
                       onClick={() => toggleSources(message.id)}
                       className="flex w-full items-center justify-between gap-2 text-[11px] font-semibold text-indigo-600"
                     >
+
                       <span className="flex items-center gap-2">
                         <FileText size={14} />
                         Sources ({message.sources.length})
@@ -620,10 +859,13 @@ function DocumentAssistantSession({
                       ) : (
                         <ChevronDown size={15} />
                       )}
+
                     </button>
+
 
                     {expandedSources[message.id] && (
                       <div className="mt-3 space-y-2">
+
                         {message.sources.map((source, index) => (
                           <button
                             key={`${source.chunk_id}-${source.page_number}-${index}`}
@@ -635,7 +877,9 @@ function DocumentAssistantSession({
                             aria-label={`Open PDF page ${source.page_number}`}
                             className="block w-full rounded-lg border border-slate-100 bg-slate-50 p-3 text-left transition hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                           >
+
                             <span className="flex items-center justify-between gap-2">
+
                               <span className="text-[10px] font-bold text-indigo-700">
                                 PDF page {source.page_number}
                               </span>
@@ -644,55 +888,83 @@ function DocumentAssistantSession({
                                 Open in reader
                                 <ArrowUpRight size={11} />
                               </span>
+
                             </span>
 
                             <span className="mt-1 block whitespace-pre-wrap text-[10px] leading-5 text-slate-500">
                               {source.excerpt}
                             </span>
+
                           </button>
                         ))}
+
                       </div>
                     )}
+
                   </div>
+
                 )}
+
             </div>
+
           </div>
         ))}
 
+
+        {/* AI LOADING INDICATOR */}
+
         {loading && (
           <div className="flex items-start gap-2.5">
+
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
               <Bot size={17} />
             </div>
 
             <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">
+
               <LoaderCircle
                 size={15}
                 className="animate-spin text-indigo-600"
               />
-              Searching your PDF and generating an answer...
+
+              {loadingMode === "summary"
+                ? "Reading all extracted PDF pages and preparing a full-document summary..."
+                : "Searching relevant PDF passages and generating an answer..."}
+
             </div>
+
           </div>
         )}
+
       </div>
 
-      {/* Error */}
+
+      {/* ERROR */}
+
       {error && (
         <div
           role="alert"
           className="flex items-start gap-2 border-t border-amber-200 bg-amber-50 px-4 py-3 text-[11px] text-amber-800"
         >
-          <AlertCircle size={15} className="mt-0.5 shrink-0" />
+          <AlertCircle
+            size={15}
+            className="mt-0.5 shrink-0"
+          />
+
           <span>{error}</span>
         </div>
       )}
 
-      {/* Input */}
+
+      {/* QUESTION INPUT */}
+
       <form
         onSubmit={handleSubmit}
         className="border-t border-slate-200 bg-white p-3"
       >
+
         <div className="flex items-end gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 focus-within:border-indigo-400">
+
           <textarea
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
@@ -719,13 +991,16 @@ function DocumentAssistantSession({
               <Send size={16} />
             )}
           </button>
+
         </div>
 
         <p className="mt-2 text-center text-[9px] text-slate-400">
           Answers are generated from the uploaded PDF. Verify
           important information against the original document.
         </p>
+
       </form>
+
     </section>
   );
 }
