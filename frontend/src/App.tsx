@@ -19,7 +19,6 @@ import {
   Settings,
   HelpCircle,
   Search,
-  Bell,
   ChevronDown,
   ArrowUpRight,
   FileText,
@@ -83,6 +82,7 @@ import ProfilePage from "./pages/ProfilePage";
 import DashboardPage from "./pages/DashboardPage";
 import SettingsPage from "./pages/SettingsPage";
 import HelpSupportPage from "./pages/HelpSupportPage";
+import NotificationCenter from "./components/NotificationCenter";
 
 const NotesPage = lazy(
   () => import("./pages/NotesPage.tsx")
@@ -327,12 +327,7 @@ function Sidebar({
               onNavigate("Help & Support");
               onClose?.();
             }}
-            aria-current={active === "Help & Support" ? "page" : undefined}
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium transition ${
-              active === "Help & Support"
-                ? "bg-white/10 text-white"
-                : "text-[#BEC6D3] hover:bg-white/10 hover:text-white"
-            }`}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium text-[#BEC6D3] transition hover:bg-white/10 hover:text-white"
           >
             <HelpCircle size={15} />
             Help & Support
@@ -344,12 +339,7 @@ function Sidebar({
               onNavigate("Settings");
               onClose?.();
             }}
-            aria-current={active === "Settings" ? "page" : undefined}
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium transition ${
-              active === "Settings"
-                ? "bg-white/10 text-white"
-                : "text-[#BEC6D3] hover:bg-white/10 hover:text-white"
-            }`}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium text-[#BEC6D3] transition hover:bg-white/10 hover:text-white"
           >
             <Settings size={15} />
             Settings
@@ -1821,16 +1811,26 @@ function App() {
             </div>
 
 
-            <button
-              type="button"
-              className="relative rounded-lg p-2 text-[#777C87] transition hover:bg-[#F0EEEB] hover:text-[#263653]"
-              aria-label="Notifications"
-            >
-              <Bell size={17} />
+            {/* NOTIFICATIONS */}
 
-              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#756185]" />
-
-            </button>
+            <NotificationCenter
+              userId={authSession.user.id}
+              ready={
+                !semestersLoading &&
+                !subjectsLoading &&
+                !chaptersLoading &&
+                !notesLoading
+              }
+              semesters={semesters}
+              subjects={subjects}
+              chapters={chapters}
+              notes={notes}
+              pdfDocuments={pdfDocuments}
+              onNavigate={(page) => {
+                setActiveNav(page);
+                setSearch("");
+              }}
+            />
 
 
             {/* SIGN OUT */}

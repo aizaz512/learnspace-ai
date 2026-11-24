@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+
 import {
   BookOpen,
   CheckCircle2,
@@ -422,12 +423,12 @@ export default function SettingsPage({
 
           <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3">
             <p className="text-xs font-semibold text-slate-800">
-              Notification delivery is not connected yet.
+              In-app notifications are active.
             </p>
 
             <p className="mt-1 text-[10px] leading-5 text-slate-500">
-              Email, push notifications and automatic study reminders
-              are not currently configured.
+              Learning activity appears in the notification bell.
+              Browser push notifications and email alerts are not configured yet.
             </p>
           </div>
 
