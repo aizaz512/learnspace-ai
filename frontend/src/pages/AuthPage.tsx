@@ -1,16 +1,16 @@
 
 import { useState } from "react";
+import type { FormEvent } from "react";
 
 import {
   ArrowRight,
-  BookOpen,
+  Check,
+  GraduationCap,
   Eye,
   EyeOff,
-  GraduationCap,
   Loader2,
   LockKeyhole,
   Mail,
-  Sparkles,
   User,
 } from "lucide-react";
 
@@ -34,53 +34,69 @@ export default function AuthPage() {
 
   const isSignup = mode === "signup";
 
+  const passwordsMatch =
+    password.length > 0 &&
+    confirmPassword.length > 0 &&
+    password === confirmPassword;
+
 
   // ==========================================
-  // RESET FORM MESSAGES
+  // SWITCH BETWEEN SIGN IN AND SIGN UP
   // ==========================================
 
   function switchMode(nextMode: AuthMode) {
+    if (loading) return;
+
     setMode(nextMode);
     setError("");
     setMessage("");
+
     setPassword("");
     setConfirmPassword("");
+    setShowPassword(false);
   }
 
 
   // ==========================================
-  // SUBMIT AUTHENTICATION FORM
+  // SUPABASE AUTHENTICATION
   // ==========================================
 
   async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
+
+    if (loading) return;
 
     setError("");
     setMessage("");
 
     const cleanEmail = email.trim().toLowerCase();
+    const cleanName = fullName.trim();
 
     if (!cleanEmail) {
       setError("Please enter your email address.");
       return;
     }
 
-    if (password.length < 8) {
-      setError("Your password must contain at least 8 characters.");
-      return;
-    }
-
-    if (isSignup && !fullName.trim()) {
+    if (isSignup && !cleanName) {
       setError("Please enter your full name.");
       return;
     }
 
-    if (
-      isSignup &&
-      password !== confirmPassword
-    ) {
+    if (isSignup && cleanName.length < 2) {
+      setError("Please enter a valid full name.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError(
+        "Your password must contain at least 8 characters."
+      );
+      return;
+    }
+
+    if (isSignup && password !== confirmPassword) {
       setError("Your passwords do not match.");
       return;
     }
@@ -95,7 +111,7 @@ export default function AuthPage() {
             password,
             options: {
               data: {
-                full_name: fullName.trim(),
+                full_name: cleanName,
               },
               emailRedirectTo: window.location.origin,
             },
@@ -106,17 +122,18 @@ export default function AuthPage() {
         }
 
         if (data.session) {
-          // Supabase session listener in App.tsx
-          // will automatically open the dashboard.
-          setMessage("Your account has been created.");
+          setMessage(
+            "Your account has been created successfully."
+          );
         } else {
           setMessage(
-            "Registration successful! Please check your email and click the verification link. Then return here and sign in."
+            "Registration successful. Check your email and verify your address before signing in."
           );
 
           setMode("signin");
           setPassword("");
           setConfirmPassword("");
+          setShowPassword(false);
         }
 
       } else {
@@ -130,11 +147,13 @@ export default function AuthPage() {
           throw signinError;
         }
 
-        // App.tsx observes the authenticated session
-        // and automatically displays the dashboard.
+        // App.tsx detects the Supabase session
+        // and opens the student dashboard.
       }
 
     } catch (err) {
+      console.error("Authentication failed:", err);
+
       setError(
         err instanceof Error
           ? err.message
@@ -152,94 +171,97 @@ export default function AuthPage() {
   // ==========================================
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f8fc] px-4 py-10">
+    <main className="flex min-h-screen items-center justify-center bg-[#f3f4f6] px-3 py-5 sm:px-6 sm:py-8">
 
-      {/* BACKGROUND DECORATION */}
+      {/* MAIN AUTHENTICATION LAYOUT */}
 
-      <div className="pointer-events-none absolute -left-32 -top-32 h-80 w-80 rounded-full bg-indigo-100/70 blur-3xl" />
-
-      <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-violet-100/70 blur-3xl" />
+      <div className="grid min-h-[640px] w-full max-w-[1120px] overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_20px_70px_rgba(15,23,42,0.09)] md:grid-cols-[0.95fr_1.05fr]">
 
 
-      {/* AUTH CARD */}
+        {/* =====================================
+            LEFT VISUAL PANEL
+        ====================================== */}
 
-      <div className="relative z-10 grid w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-200/60 lg:grid-cols-2">
+        <section className="relative hidden min-h-[640px] overflow-hidden bg-[#101923] md:block">
+
+          {/* REAL STUDENT PHOTOGRAPH */}
+
+          <img
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=85"
+            alt="University students studying together"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            loading="eager"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
+
+          {/* DARK IMAGE OVERLAY */}
+
+          <div className="absolute inset-0 bg-gradient-to-t from-[#07111d]/95 via-[#07111d]/50 to-[#07111d]/15" />
 
 
-        {/* LEFT BRAND PANEL */}
+          {/* BRAND */}
 
-        <section className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-700 via-indigo-700 to-violet-800 p-10 text-white lg:flex">
+          <div className="absolute left-9 top-9 z-10 flex items-center gap-3 lg:left-11 lg:top-10">
 
-          <div className="absolute -right-24 -top-20 h-72 w-72 rounded-full border border-white/10" />
-
-          <div className="absolute -bottom-36 -left-28 h-96 w-96 rounded-full border border-white/10" />
-
-          <div className="relative z-10">
-
-            <div className="flex items-center gap-3">
-
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
-                <GraduationCap size={25} />
-              </div>
-
-              <div>
-                <h1 className="text-xl font-bold">
-                  LearnSpace AI
-                </h1>
-
-                <p className="text-[10px] tracking-widest text-indigo-200">
-                  INTELLIGENT DIGITAL LEARNING
-                </p>
-              </div>
-
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white backdrop-blur-sm">
+              <GraduationCap size={25} />
             </div>
 
+            <div>
+              <h1 className="text-lg font-bold tracking-tight text-white">
+                LearnSpace <span className="text-sky-300">AI</span>
+              </h1>
 
-            <div className="mt-24">
-
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15">
-                <Sparkles size={29} />
-              </div>
-
-              <h2 className="max-w-sm text-4xl font-bold leading-tight">
-                Your journey to smarter learning starts here.
-              </h2>
-
-              <p className="mt-5 max-w-sm text-sm leading-7 text-indigo-100">
-                Organize your university subjects, understand
-                difficult concepts, generate quizzes, and build
-                better study habits with your AI learning partner.
+              <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.15em] text-white/65">
+                University learning platform
               </p>
-
             </div>
 
           </div>
 
 
-          <div className="relative z-10 grid grid-cols-2 gap-3">
+          {/* IMAGE CONTENT */}
 
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-              <BookOpen size={19} />
+          <div className="absolute bottom-0 left-0 z-10 w-full p-9 lg:p-11">
 
-              <p className="mt-3 text-xs font-semibold">
-                Smart notebooks
-              </p>
+            <div className="mb-5 h-px w-12 bg-sky-400" />
 
-              <p className="mt-1 text-[10px] text-indigo-200">
-                Organize your learning
-              </p>
-            </div>
+            <h2 className="max-w-md text-4xl font-semibold leading-[1.2] tracking-tight text-white lg:text-[42px]">
+              Make learning
+              <br />
+              <span className="font-normal text-white/75">
+                more organized.
+              </span>
+            </h2>
 
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-              <Sparkles size={19} />
+            <p className="mt-5 max-w-sm text-sm leading-7 text-white/75">
+              Your university subjects, study notes
+              and learning tools — together in one place.
+            </p>
 
-              <p className="mt-3 text-xs font-semibold">
+
+            {/* MINIMAL FEATURE LINE */}
+
+            <div className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-white/20 pt-5">
+
+              <span className="text-[10px] font-medium text-white/80">
+                Subjects
+              </span>
+
+              <span className="h-1 w-1 rounded-full bg-sky-400" />
+
+              <span className="text-[10px] font-medium text-white/80">
+                Notes
+              </span>
+
+              <span className="h-1 w-1 rounded-full bg-sky-400" />
+
+              <span className="text-[10px] font-medium text-white/80">
                 AI study tools
-              </p>
+              </span>
 
-              <p className="mt-1 text-[10px] text-indigo-200">
-                Learn more effectively
-              </p>
             </div>
 
           </div>
@@ -247,336 +269,388 @@ export default function AuthPage() {
         </section>
 
 
-        {/* RIGHT AUTH PANEL */}
+        {/* =====================================
+            RIGHT FORM PANEL
+        ====================================== */}
 
-        <section className="p-6 sm:p-10 lg:p-12">
+        <section className="flex min-h-[640px] items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-[76px]">
 
-          {/* MOBILE BRAND */}
+          <div className="w-full max-w-[380px]">
 
-          <div className="mb-10 flex items-center gap-3 lg:hidden">
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">
-              <GraduationCap size={24} />
+            {/* MOBILE BRAND */}
+
+            <div className="mb-12 flex items-center gap-3 md:hidden">
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#173d69] text-white">
+                <GraduationCap size={23} />
+              </div>
+
+              <div>
+                <h1 className="text-lg font-bold text-slate-900">
+                  LearnSpace <span className="text-blue-600">AI</span>
+                </h1>
+
+                <p className="text-[9px] uppercase tracking-wider text-slate-400">
+                  University learning platform
+                </p>
+              </div>
+
             </div>
 
-            <div>
-              <h1 className="text-lg font-bold text-slate-900">
-                LearnSpace<span className="text-indigo-600"> AI</span>
-              </h1>
 
-              <p className="text-[9px] font-medium tracking-wider text-slate-400">
-                INTELLIGENT DIGITAL LEARNING
+            {/* FORM HEADING */}
+
+            <div className="mb-9">
+
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">
+                {isSignup ? "GET STARTED" : "STUDENT ACCOUNT"}
               </p>
+
+              <h2 className="text-[32px] font-semibold tracking-tight text-[#111827] sm:text-[36px]">
+                {isSignup ? "Create account" : "Sign in"}
+              </h2>
+
+              <p className="mt-2 text-sm text-slate-500">
+                {isSignup
+                  ? "Create your account to get started."
+                  : "Welcome back. Continue your learning journey."}
+              </p>
+
             </div>
 
-          </div>
+
+            {/* AUTHENTICATION FORM */}
+
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
+            >
 
 
-          {/* FORM HEADER */}
+              {/* FULL NAME */}
 
-          <div className="mb-8">
+              {isSignup && (
+                <div>
 
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-              {isSignup ? (
-                <User size={22} />
-              ) : (
-                <LockKeyhole size={22} />
+                  <label
+                    htmlFor="auth-full-name"
+                    className="mb-2 block text-xs font-medium text-slate-700"
+                  >
+                    Full name
+                  </label>
+
+                  <div className="relative">
+
+                    <User
+                      size={16}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
+
+                    <input
+                      id="auth-full-name"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      maxLength={100}
+                      value={fullName}
+                      onChange={(event) =>
+                        setFullName(event.target.value)
+                      }
+                      disabled={loading}
+                      placeholder="Enter your full name"
+                      className="h-[50px] w-full rounded-full border border-slate-200 bg-white pl-11 pr-5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:bg-slate-50"
+                    />
+
+                  </div>
+
+                </div>
               )}
-            </div>
-
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-              {isSignup
-                ? "Create your account"
-                : "Welcome back"}
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              {isSignup
-                ? "Create your student account and start organizing your learning."
-                : "Sign in to continue your learning journey."}
-            </p>
-
-          </div>
 
 
-          {/* MODE SWITCH */}
+              {/* EMAIL */}
 
-          <div className="mb-7 grid grid-cols-2 rounded-xl bg-slate-100 p-1">
-
-            <button
-              type="button"
-              onClick={() => switchMode("signin")}
-              className={`rounded-lg py-2.5 text-xs font-semibold transition ${
-                !isSignup
-                  ? "bg-white text-indigo-700 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              Sign in
-            </button>
-
-            <button
-              type="button"
-              onClick={() => switchMode("signup")}
-              className={`rounded-lg py-2.5 text-xs font-semibold transition ${
-                isSignup
-                  ? "bg-white text-indigo-700 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              Create account
-            </button>
-
-          </div>
-
-
-          {/* FORM */}
-
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-
-            {/* FULL NAME */}
-
-            {isSignup && (
               <div>
 
                 <label
-                  htmlFor="auth-name"
-                  className="mb-2 block text-xs font-semibold text-slate-700"
+                  htmlFor="auth-email"
+                  className="mb-2 block text-xs font-medium text-slate-700"
                 >
-                  Full name
+                  Email address
                 </label>
 
                 <div className="relative">
 
-                  <User
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  <Mail
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
                   />
 
                   <input
-                    id="auth-name"
-                    type="text"
-                    autoComplete="name"
+                    id="auth-email"
+                    type="email"
+                    autoComplete="email"
                     required
-                    maxLength={100}
-                    value={fullName}
+                    maxLength={254}
+                    value={email}
                     onChange={(event) =>
-                      setFullName(event.target.value)
+                      setEmail(event.target.value)
                     }
-                    placeholder="Enter your full name"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                    disabled={loading}
+                    placeholder="Enter your email"
+                    className="h-[50px] w-full rounded-full border border-slate-200 bg-white pl-11 pr-5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:bg-slate-50"
                   />
 
                 </div>
 
               </div>
-            )}
 
 
-            {/* EMAIL */}
+              {/* PASSWORD */}
 
-            <div>
-
-              <label
-                htmlFor="auth-email"
-                className="mb-2 block text-xs font-semibold text-slate-700"
-              >
-                Email address
-              </label>
-
-              <div className="relative">
-
-                <Mail
-                  size={17}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-
-                <input
-                  id="auth-email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
-                  placeholder="you@example.com"
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* PASSWORD */}
-
-            <div>
-
-              <label
-                htmlFor="auth-password"
-                className="mb-2 block text-xs font-semibold text-slate-700"
-              >
-                Password
-              </label>
-
-              <div className="relative">
-
-                <LockKeyhole
-                  size={17}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-
-                <input
-                  id="auth-password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete={
-                    isSignup
-                      ? "new-password"
-                      : "current-password"
-                  }
-                  required
-                  minLength={8}
-                  value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
-                  placeholder="At least 8 characters"
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-11 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                />
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowPassword((current) => !current)
-                  }
-                  aria-label={
-                    showPassword
-                      ? "Hide password"
-                      : "Show password"
-                  }
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? (
-                    <EyeOff size={17} />
-                  ) : (
-                    <Eye size={17} />
-                  )}
-                </button>
-
-              </div>
-
-            </div>
-
-
-            {/* CONFIRM PASSWORD */}
-
-            {isSignup && (
               <div>
 
                 <label
-                  htmlFor="auth-confirm-password"
-                  className="mb-2 block text-xs font-semibold text-slate-700"
+                  htmlFor="auth-password"
+                  className="mb-2 block text-xs font-medium text-slate-700"
                 >
-                  Confirm password
+                  Password
                 </label>
 
                 <div className="relative">
 
                   <LockKeyhole
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
                   />
 
                   <input
-                    id="auth-confirm-password"
+                    id="auth-password"
                     type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
+                    autoComplete={
+                      isSignup
+                        ? "new-password"
+                        : "current-password"
+                    }
                     required
                     minLength={8}
-                    value={confirmPassword}
+                    value={password}
                     onChange={(event) =>
-                      setConfirmPassword(event.target.value)
+                      setPassword(event.target.value)
                     }
-                    placeholder="Enter your password again"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                    disabled={loading}
+                    placeholder="Enter your password"
+                    className="h-[50px] w-full rounded-full border border-slate-200 bg-white pl-11 pr-12 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:bg-slate-50"
                   />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword((current) => !current)
+                    }
+                    disabled={loading}
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
+                    }
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-blue-600"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
 
                 </div>
 
               </div>
-            )}
 
 
-            {/* ERROR */}
+              {/* CONFIRM PASSWORD */}
 
-            {error && (
-              <div
-                role="alert"
-                className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-700"
-              >
-                {error}
-              </div>
-            )}
+              {isSignup && (
+                <div>
 
+                  <label
+                    htmlFor="auth-confirm-password"
+                    className="mb-2 block text-xs font-medium text-slate-700"
+                  >
+                    Confirm password
+                  </label>
 
-            {/* SUCCESS MESSAGE */}
+                  <div className="relative">
 
-            {message && (
-              <div
-                role="status"
-                className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-6 text-emerald-800"
-              >
-                {message}
-              </div>
-            )}
+                    <LockKeyhole
+                      size={16}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
 
+                    <input
+                      id="auth-confirm-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      value={confirmPassword}
+                      onChange={(event) =>
+                        setConfirmPassword(event.target.value)
+                      }
+                      disabled={loading}
+                      placeholder="Confirm your password"
+                      className={`h-[50px] w-full rounded-full border bg-white pl-11 pr-12 text-sm text-slate-800 outline-none transition focus:ring-4 disabled:bg-slate-50 ${
+                        confirmPassword.length === 0
+                          ? "border-slate-200 focus:border-blue-500 focus:ring-blue-500/10"
+                          : passwordsMatch
+                            ? "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/10"
+                            : "border-rose-300 focus:border-rose-500 focus:ring-rose-500/10"
+                      }`}
+                    />
 
-            {/* SUBMIT */}
+                    {passwordsMatch && (
+                      <Check
+                        size={16}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-600"
+                      />
+                    )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-md shadow-indigo-100 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
+                  </div>
 
-              {loading ? (
-                <>
-                  <Loader2
-                    size={18}
-                    className="animate-spin"
-                  />
-                  Please wait...
-                </>
-              ) : (
-                <>
-                  {isSignup
-                    ? "Create student account"
-                    : "Sign in to LearnSpace AI"}
+                  {confirmPassword.length > 0 && !passwordsMatch && (
+                    <p className="mt-1.5 text-[10px] text-rose-600">
+                      Passwords do not match.
+                    </p>
+                  )}
 
-                  <ArrowRight size={17} />
-                </>
+                  {passwordsMatch && (
+                    <p className="mt-1.5 text-[10px] text-emerald-600">
+                      Passwords match.
+                    </p>
+                  )}
+
+                </div>
               )}
 
-            </button>
 
-          </form>
+              {/* ERROR */}
+
+              {error && (
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs leading-5 text-rose-700"
+                >
+                  {error}
+                </div>
+              )}
 
 
-          {/* FOOTER */}
+              {/* SUCCESS */}
 
-          <p className="mt-7 text-center text-[10px] leading-5 text-slate-400">
-            By continuing, you agree to use LearnSpace AI
-            responsibly for your academic learning.
-          </p>
+              {message && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs leading-5 text-emerald-800"
+                >
+                  {message}
+                </div>
+              )}
 
-          <div className="mt-8 border-t border-slate-100 pt-5 text-center">
 
-            <p className="text-[10px] text-slate-400">
-              © 2026 LearnSpace AI. Built for better learning.
+              {/* SUBMIT BUTTON */}
+
+              <button
+                type="submit"
+                disabled={
+                  loading ||
+                  (isSignup &&
+                    confirmPassword.length > 0 &&
+                    !passwordsMatch)
+                }
+                className="group mt-2 flex h-[51px] w-full items-center justify-center gap-2 rounded-full bg-[#1769c2] px-5 text-sm font-semibold text-white transition duration-200 hover:bg-[#1257a5] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+
+                {loading ? (
+                  <>
+                    <Loader2
+                      size={17}
+                      className="animate-spin"
+                    />
+
+                    {isSignup
+                      ? "Creating account..."
+                      : "Signing in..."}
+                  </>
+                ) : (
+                  <>
+                    {isSignup ? "Create account" : "Sign in"}
+
+                    <ArrowRight
+                      size={16}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </>
+                )}
+
+              </button>
+
+            </form>
+
+
+            {/* ACCOUNT SWITCH */}
+
+            <div className="mt-7 text-center">
+
+              {isSignup ? (
+                <p className="text-xs text-slate-500">
+                  Already have an account?{" "}
+
+                  <button
+                    type="button"
+                    onClick={() => switchMode("signin")}
+                    disabled={loading}
+                    className="font-semibold text-blue-600 hover:text-blue-800"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              ) : (
+                <p className="text-xs text-slate-500">
+                  Don't have an account?{" "}
+
+                  <button
+                    type="button"
+                    onClick={() => switchMode("signup")}
+                    disabled={loading}
+                    className="font-semibold text-blue-600 hover:text-blue-800"
+                  >
+                    Create account
+                  </button>
+                </p>
+              )}
+
+            </div>
+
+
+            {/* FOOTER */}
+
+            <div className="mt-12 flex items-center justify-center gap-2 border-t border-slate-100 pt-5">
+
+              <LockKeyhole
+                size={12}
+                className="text-slate-400"
+              />
+
+              <span className="text-[10px] text-slate-400">
+                Secure student account access
+              </span>
+
+            </div>
+
+            <p className="mt-4 text-center text-[10px] text-slate-400">
+              © 2026 LearnSpace AI
             </p>
 
           </div>
