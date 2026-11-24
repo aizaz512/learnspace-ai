@@ -21,12 +21,7 @@ import {
   Search,
   Bell,
   ChevronDown,
-  Plus,
   ArrowUpRight,
-  Clock3,
-  Flame,
-  Target,
-  CheckCircle2,
   FileText,
   GraduationCap,
   Menu,
@@ -85,8 +80,13 @@ import StudyPlannerPage from "./pages/StudyPlannerPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
+import DashboardPage from "./pages/DashboardPage";
+import SettingsPage from "./pages/SettingsPage";
+import HelpSupportPage from "./pages/HelpSupportPage";
 
-const NotesPage = lazy(() => import("./pages/NotesPage.tsx"));
+const NotesPage = lazy(
+  () => import("./pages/NotesPage.tsx")
+);
 
 const MyNotebooksPage = lazy(
   () => import("./pages/MyNotebooksPage.tsx")
@@ -126,51 +126,14 @@ const navigation = [
 
 
 // ============================================
-// STUDY TASK TYPE
+// NOTE SAVE STATUS
 // ============================================
-
-type StudyTask = {
-  id: number;
-  title: string;
-  subject: string;
-  due: string;
-  done: boolean;
-};
 
 type NoteSaveStatus =
   | "idle"
   | "saving"
   | "saved"
   | "error";
-
-
-// ============================================
-// INITIAL TASKS
-// ============================================
-
-const initialTasks: StudyTask[] = [
-  {
-    id: 1,
-    title: "Complete Neural Networks assignment",
-    subject: "Machine Learning",
-    due: "Today · 8:00 PM",
-    done: false,
-  },
-  {
-    id: 2,
-    title: "Revise Image Classification",
-    subject: "Computer Vision",
-    due: "Tomorrow · 10:00 AM",
-    done: false,
-  },
-  {
-    id: 3,
-    title: "Practice Binary Trees",
-    subject: "Data Structures",
-    due: "Nov 6 · 2:00 PM",
-    done: false,
-  },
-];
 
 
 // ============================================
@@ -203,24 +166,24 @@ function Sidebar({
     userName.trim().charAt(0).toUpperCase() || "S";
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-[#263653] text-white">
 
       {/* BRAND */}
 
-      <div className="flex h-[76px] items-center justify-between border-b border-slate-100 px-6">
+      <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-white/10 px-5">
 
         <div className="flex items-center gap-3">
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-200">
-            <GraduationCap size={23} />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#526B91] text-white">
+            <GraduationCap size={20} />
           </div>
 
           <div>
-            <h1 className="text-[17px] font-bold tracking-tight text-slate-900">
-              LearnSpace<span className="text-indigo-600"> AI</span>
+            <h1 className="text-[15px] font-semibold tracking-tight text-white">
+              LearnSpace <span className="text-[#B6C3D8]">AI</span>
             </h1>
 
-            <p className="text-[10px] font-medium tracking-wide text-slate-400">
+            <p className="mt-0.5 text-[9px] font-medium tracking-[0.12em] text-[#AEB9C9]">
               YOUR SMART LEARNING SPACE
             </p>
           </div>
@@ -229,11 +192,12 @@ function Sidebar({
 
         {onClose && (
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+            className="rounded-lg p-2 text-[#C4CCD8] transition hover:bg-white/10 hover:text-white lg:hidden"
             aria-label="Close navigation"
           >
-            <X size={19} />
+            <X size={18} />
           </button>
         )}
 
@@ -242,12 +206,12 @@ function Sidebar({
 
       {/* NAVIGATION */}
 
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-3 py-5">
 
         {navigation.map((group) => (
-          <div className="mb-7" key={group.heading}>
+          <div className="mb-6" key={group.heading}>
 
-            <p className="mb-3 px-3 text-[10px] font-bold tracking-[1.5px] text-slate-400">
+            <p className="mb-2 px-3 text-[9px] font-semibold tracking-[0.15em] text-[#8998AF]">
               {group.heading}
             </p>
 
@@ -270,118 +234,160 @@ function Sidebar({
                 return (
                   <button
                     key={item.label}
+                    type="button"
                     onClick={() => {
                       onNavigate(item.label);
                       onClose?.();
                     }}
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-medium transition ${
+                    className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] font-medium transition ${
                       selected
-                        ? "bg-indigo-50 text-indigo-700"
-                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        ? "bg-[#526B91] text-white shadow-sm"
+                        : "text-[#C4CCD8] hover:bg-white/10 hover:text-white"
                     }`}
                   >
+
                     <Icon
-                      size={18}
-                      strokeWidth={selected ? 2.3 : 1.8}
+                      size={16}
+                      strokeWidth={selected ? 2.2 : 1.8}
+                      className={
+                        selected
+                          ? "text-white"
+                          : "text-[#AEB9C9] group-hover:text-white"
+                      }
                     />
 
-                    {item.label}
+                    <span className="flex-1">
+                      {item.label}
+                    </span>
 
                     {item.label === "AI Assistant" && (
-                      <span className="ml-auto rounded-full bg-violet-100 px-2 py-0.5 text-[9px] font-bold text-violet-700">
+                      <span className="rounded px-1.5 py-0.5 text-[8px] font-semibold bg-[#756185] text-white">
                         AI
                       </span>
                     )}
+
                   </button>
                 );
               })}
 
             </div>
+
           </div>
         ))}
 
       </div>
 
 
-      {/* AI CARD */}
+      {/* SIDEBAR BOTTOM AREA */}
 
-      <div className="px-4 pb-4">
+      <div className="shrink-0 space-y-3 border-t border-white/10 px-3 pb-4 pt-3">
 
-        <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-4 text-white">
+        {/* COMPACT AI ASSISTANT SHORTCUT */}
 
-          <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
-            <Sparkles size={18} />
+        <button
+          type="button"
+          onClick={() => {
+            onNavigate("AI Assistant");
+            onClose?.();
+          }}
+          className="group flex w-full items-center gap-2.5 rounded-lg border border-white/10 bg-[#344766] px-2.5 py-2.5 text-left transition hover:border-[#8399BC]/50 hover:bg-[#3B506F]"
+        >
+
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#756185] text-white">
+            <Sparkles size={15} />
           </div>
 
-          <p className="text-sm font-semibold">
-            Your AI study partner
-          </p>
+          <div className="min-w-0 flex-1">
 
-          <p className="mt-1 text-[11px] leading-5 text-indigo-100">
-            Understand difficult topics and learn at your own pace.
-          </p>
+            <p className="text-[11px] font-semibold text-white">
+              AI study partner
+            </p>
+
+            <p className="mt-0.5 truncate text-[9px] text-[#BFC9D8]">
+              Ask about your courses
+            </p>
+
+          </div>
+
+          <ArrowUpRight
+            size={14}
+            className="shrink-0 text-[#BFC9D8] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          />
+
+        </button>
+
+
+        {/* SUPPORT LINKS */}
+
+        <div className="space-y-0.5">
 
           <button
-            onClick={() => onNavigate("AI Assistant")}
-            className="mt-3 flex items-center gap-2 text-xs font-semibold text-white hover:text-indigo-100"
+            type="button"
+            onClick={() => {
+              onNavigate("Help & Support");
+              onClose?.();
+            }}
+            aria-current={active === "Help & Support" ? "page" : undefined}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium transition ${
+              active === "Help & Support"
+                ? "bg-white/10 text-white"
+                : "text-[#BEC6D3] hover:bg-white/10 hover:text-white"
+            }`}
           >
-            Explore AI Assistant
-            <ArrowUpRight size={14} />
-          </button>
-
-        </div>
-
-
-        {/* SUPPORT */}
-
-        <div className="mt-4 space-y-1">
-
-          <button
-            onClick={() => onNavigate("Help & Support")}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50"
-          >
-            <HelpCircle size={18} />
+            <HelpCircle size={15} />
             Help & Support
           </button>
 
           <button
-            onClick={() => onNavigate("Settings")}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-500 hover:bg-slate-50"
+            type="button"
+            onClick={() => {
+              onNavigate("Settings");
+              onClose?.();
+            }}
+            aria-current={active === "Settings" ? "page" : undefined}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium transition ${
+              active === "Settings"
+                ? "bg-white/10 text-white"
+                : "text-[#BEC6D3] hover:bg-white/10 hover:text-white"
+            }`}
           >
-            <Settings size={18} />
+            <Settings size={15} />
             Settings
           </button>
 
         </div>
 
 
-        {/* AUTHENTICATED USER PROFILE */}
+        {/* USER PROFILE */}
 
         <button
           type="button"
-          onClick={onOpenProfile}
-          className="mt-4 flex w-full items-center gap-3 border-t border-slate-100 px-2 pt-4 text-left transition hover:bg-slate-50"
+          onClick={() => {
+            onOpenProfile();
+            onClose?.();
+          }}
+          className="flex w-full items-center gap-2.5 border-t border-white/10 px-2 pt-3 text-left transition hover:bg-white/5"
         >
 
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-[#526B91] text-xs font-semibold text-white">
             {avatarLetter}
           </div>
 
           <div className="min-w-0 flex-1">
 
-            <p className="truncate text-xs font-semibold text-slate-800">
+            <p className="truncate text-[11px] font-semibold text-white">
               {userName}
             </p>
 
-            <p className="truncate text-[10px] text-slate-400">
+            <p className="mt-0.5 truncate text-[9px] text-[#AEB9C9]">
               {userEmail || "University Student"}
             </p>
 
           </div>
 
           <ChevronDown
-            size={16}
-            className="text-slate-400"
+            size={14}
+            className="shrink-0 text-[#AEB9C9]"
           />
 
         </button>
@@ -498,9 +504,6 @@ function App() {
   const [pdfDocuments, setPdfDocuments] =
     useState<PdfDocument[]>([]);
 
-  const [tasks, setTasks] =
-    useState<StudyTask[]>(initialTasks);
-
 
   const [selectedSubjectId, setSelectedSubjectId] =
     useState<number | null>(null);
@@ -508,9 +511,10 @@ function App() {
   const [selectedChapterId, setSelectedChapterId] =
     useState<number | null>(null);
 
-  // Remember which page opened the Notes editor.
   const [notesReturnNav, setNotesReturnNav] =
-    useState<"Chapters" | "My Notebooks">("Chapters");
+    useState<
+      "Chapters" | "My Notebooks" | "Overview"
+    >("Chapters");
 
 
   // ==========================================
@@ -564,7 +568,7 @@ function App() {
 
 
   // ==========================================
-  // LOAD SEMESTERS FOR SIGNED-IN USER
+  // LOAD SEMESTERS
   // ==========================================
 
   useEffect(() => {
@@ -617,7 +621,7 @@ function App() {
 
 
   // ==========================================
-  // LOAD SUBJECTS FOR SIGNED-IN USER
+  // LOAD SUBJECTS
   // ==========================================
 
   useEffect(() => {
@@ -625,7 +629,6 @@ function App() {
 
     const userId = authSession?.user.id ?? null;
 
-    // Clear account-specific in-memory data when the user changes.
     if (previousSubjectsUserId.current !== userId) {
       previousSubjectsUserId.current = userId;
 
@@ -679,7 +682,7 @@ function App() {
 
 
   // ==========================================
-  // LOAD CHAPTERS FOR SIGNED-IN USER
+  // LOAD CHAPTERS
   // ==========================================
 
   useEffect(() => {
@@ -739,7 +742,7 @@ function App() {
 
 
   // ==========================================
-  // LOAD NOTES FROM SUPABASE
+  // LOAD NOTES
   // ==========================================
 
   useEffect(() => {
@@ -747,7 +750,6 @@ function App() {
 
     const userId = authSession?.user.id ?? null;
 
-    // Clear account-specific note data when the signed-in user changes.
     if (previousNotesUserId.current !== userId) {
       previousNotesUserId.current = userId;
 
@@ -792,6 +794,7 @@ function App() {
 
         notesRef.current = [];
         setNotes([]);
+
         setNotesError(
           error instanceof Error
             ? error.message
@@ -842,10 +845,7 @@ function App() {
               (a, b) => a.position - b.position
             )
         : [],
-    [
-      chapters,
-      selectedSubject,
-    ]
+    [chapters, selectedSubject]
   );
 
 
@@ -857,10 +857,7 @@ function App() {
               note.chapterId === selectedChapter.id
           )
         : [],
-    [
-      notes,
-      selectedChapter,
-    ]
+    [notes, selectedChapter]
   );
 
 
@@ -872,30 +869,8 @@ function App() {
               document.chapterId === selectedChapter.id
           )
         : [],
-    [
-      pdfDocuments,
-      selectedChapter,
-    ]
+    [pdfDocuments, selectedChapter]
   );
-
-
-  const filteredSubjects = useMemo(
-    () =>
-      subjects.filter((subject) =>
-        subject.name
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      ),
-    [
-      subjects,
-      search,
-    ]
-  );
-
-
-  const completedTasks = tasks.filter(
-    (task) => task.done
-  ).length;
 
 
   // ==========================================
@@ -1466,13 +1441,12 @@ function App() {
   // NOTE MANAGEMENT
   // ==========================================
 
-  // CREATE NOTE IN SUPABASE
-
   async function handleAddNote(chapterId: number): Promise<Note> {
     try {
       const newNote = await createNoteInSupabase(chapterId);
 
       const nextNotes = [newNote, ...notesRef.current];
+
       notesRef.current = nextNotes;
       setNotes(nextNotes);
 
@@ -1488,8 +1462,6 @@ function App() {
     }
   }
 
-
-  // UPDATE NOTE WITH DEBOUNCED CLOUD AUTOSAVE
 
   function handleUpdateNote(
     id: number,
@@ -1576,8 +1548,6 @@ function App() {
   }
 
 
-  // KEEP LOCAL NOTE STATE CONSISTENT AFTER CHAPTER DELETION
-
   function removeNotesFromChapters(chapterIds: number[]): void {
     const chapterIdSet = new Set(chapterIds);
 
@@ -1593,6 +1563,7 @@ function App() {
       }
 
       noteSaveTimers.current.delete(note.id);
+
       noteSaveVersions.current.set(
         note.id,
         (noteSaveVersions.current.get(note.id) ?? 0) + 1
@@ -1618,8 +1589,6 @@ function App() {
   }
 
 
-  // DELETE NOTE FROM SUPABASE
-
   async function handleDeleteNote(id: number): Promise<void> {
     const timer = noteSaveTimers.current.get(id);
 
@@ -1628,6 +1597,7 @@ function App() {
     }
 
     noteSaveTimers.current.delete(id);
+
     noteSaveVersions.current.set(
       id,
       (noteSaveVersions.current.get(id) ?? 0) + 1
@@ -1672,24 +1642,6 @@ function App() {
 
 
   // ==========================================
-  // TASK MANAGEMENT
-  // ==========================================
-
-  function toggleTask(id: number) {
-    setTasks((current) =>
-      current.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              done: !task.done,
-            }
-          : task
-      )
-    );
-  }
-
-
-  // ==========================================
   // AUTHENTICATION: SIGN OUT
   // ==========================================
 
@@ -1705,18 +1657,18 @@ function App() {
 
 
   // ==========================================
-  // AUTHENTICATION LOADING SCREEN
+  // AUTHENTICATION LOADING
   // ==========================================
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7f8fc]">
+      <div className="flex min-h-screen items-center justify-center bg-[#F3F1ED]">
 
         <div className="flex flex-col items-center gap-3">
 
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
+          <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#DCE4EF] border-t-[#526B91]" />
 
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-xs font-medium text-[#777C87]">
             Loading LearnSpace AI...
           </p>
 
@@ -1763,12 +1715,14 @@ function App() {
   // ==========================================
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
+    <div className="min-h-screen bg-[#F3F1ED] text-[#252D3D]">
 
       {/* MOBILE OVERLAY */}
 
       {mobileOpen && (
-        <div
+        <button
+          type="button"
+          aria-label="Close navigation overlay"
           className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
@@ -1778,12 +1732,13 @@ function App() {
       {/* SIDEBAR */}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[260px] transform border-r border-slate-100 transition-transform duration-200 ${
+        className={`fixed inset-y-0 left-0 z-50 w-[250px] transform border-r border-white/10 transition-transform duration-300 ${
           mobileOpen
             ? "translate-x-0"
             : "-translate-x-full"
         } lg:translate-x-0`}
       >
+
         <Sidebar
           active={activeNav}
           onNavigate={(label) => {
@@ -1798,35 +1753,37 @@ function App() {
           userName={authUserName}
           userEmail={authUserEmail}
         />
+
       </aside>
 
 
-      {/* MAIN */}
+      {/* MAIN CONTENT */}
 
-      <main className="min-h-screen lg:pl-[260px]">
+      <main className="min-h-screen lg:pl-[250px]">
 
 
         {/* HEADER */}
 
-        <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-slate-100 bg-white/95 px-5 backdrop-blur-md sm:px-8">
+        <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-[#E2DED8] bg-[#FDFCFA]/95 px-5 backdrop-blur-md sm:px-8">
 
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
 
             <button
+              type="button"
               onClick={() => setMobileOpen(true)}
-              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+              className="rounded-lg p-2 text-[#526B91] transition hover:bg-[#E8EDF4] lg:hidden"
               aria-label="Open navigation"
             >
-              <Menu size={21} />
+              <Menu size={20} />
             </button>
 
-            <div>
+            <div className="min-w-0">
 
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#92939C]">
                 LEARNING WORKSPACE
               </p>
 
-              <h2 className="text-sm font-semibold text-slate-800">
+              <h2 className="truncate text-sm font-semibold text-[#263653]">
                 {activeNav === "Chapters" && selectedSubject
                   ? selectedSubject.name
                   : activeNav === "Notes" && selectedChapter
@@ -1843,13 +1800,13 @@ function App() {
 
           {/* HEADER ACTIONS */}
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
 
             <div className="relative hidden sm:block">
 
               <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#92939C]"
               />
 
               <input
@@ -1857,20 +1814,21 @@ function App() {
                 onChange={(event) =>
                   setSearch(event.target.value)
                 }
-                placeholder="Search your subjects..."
-                className="h-10 w-56 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-xs outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100"
+                placeholder="Search subjects..."
+                className="h-9 w-48 rounded-lg border border-[#E2DED8] bg-[#F5F3F0] pl-9 pr-3 text-[11px] text-[#252D3D] outline-none transition focus:border-[#526B91] focus:bg-white focus:ring-2 focus:ring-[#526B91]/10 sm:w-56"
               />
 
             </div>
 
 
             <button
-              className="relative rounded-xl p-2.5 text-slate-500 transition hover:bg-slate-100"
+              type="button"
+              className="relative rounded-lg p-2 text-[#777C87] transition hover:bg-[#F0EEEB] hover:text-[#263653]"
               aria-label="Notifications"
             >
-              <Bell size={19} />
+              <Bell size={17} />
 
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-rose-500" />
+              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#756185]" />
 
             </button>
 
@@ -1878,33 +1836,35 @@ function App() {
             {/* SIGN OUT */}
 
             <button
+              type="button"
               onClick={() => void handleSignOut()}
               title="Sign out"
               aria-label="Sign out"
-              className="rounded-xl p-2.5 text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+              className="rounded-lg p-2 text-[#777C87] transition hover:bg-rose-50 hover:text-rose-600"
             >
-              <LogOut size={19} />
+              <LogOut size={17} />
             </button>
 
 
-            <div className="hidden h-8 w-px bg-slate-200 sm:block" />
+            <div className="hidden h-7 w-px bg-[#E2DED8] sm:block" />
 
 
             {/* USER PROFILE */}
 
             <button
+              type="button"
               onClick={() => setActiveNav("My Profile")}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-lg p-1 transition hover:bg-[#F0EEEB]"
               title={authUserEmail || "Student account"}
             >
 
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E8EDF4] text-[11px] font-bold text-[#263653]">
                 {authUserName.charAt(0).toUpperCase() || "S"}
               </div>
 
               <ChevronDown
-                size={15}
-                className="text-slate-400"
+                size={14}
+                className="text-[#92939C]"
               />
 
             </button>
@@ -1914,458 +1874,43 @@ function App() {
         </header>
 
 
-        {/* PAGE CONTENT */}
+        {/* =====================================
+            PAGE CONTENT
+        ====================================== */}
 
         <div className="mx-auto max-w-[1500px] px-5 py-7 sm:px-8 sm:py-9">
 
 
-          {/* DASHBOARD */}
+          {/* OVERVIEW */}
 
           {isOverview ? (
 
-            <>
-
-              {/* WELCOME */}
-
-              <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-
-                <div>
-
-                  <p className="mb-1 text-sm text-slate-500">
-                    Your learning workspace
-                  </p>
-
-                  <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-[28px]">
-                    Welcome back, {authUserName} 👋
-                  </h1>
-
-                  <p className="mt-1.5 text-sm text-slate-500">
-                    Ready to make today a productive learning day?
-                  </p>
-
-                  {currentSemester && (
-                    <p className="mt-2 text-xs font-medium text-indigo-600">
-                      Current semester: {currentSemester.name}
-                    </p>
-                  )}
-
-                </div>
-
-
-                <button
-                  onClick={() => setActiveNav("My Notebooks")}
-                  className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700"
-                >
-                  <Plus size={16} />
-                  New note
-                </button>
-
-              </div>
-
-
-              {/* STATISTICS */}
-
-              <section className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-                {[
-                  {
-                    label: "Study streak",
-                    value: "6 days",
-                    caption: "Keep your momentum",
-                    icon: Flame,
-                    color: "text-orange-600",
-                    bg: "bg-orange-50",
-                  },
-                  {
-                    label: "Study time",
-                    value: "12.5 hrs",
-                    caption: "This week's activity",
-                    icon: Clock3,
-                    color: "text-blue-600",
-                    bg: "bg-blue-50",
-                  },
-                  {
-                    label: "Chapters completed",
-                    value: `${chapters.filter((chapter) => chapter.isCompleted).length} / ${chapters.length}`,
-                    caption: "Across all subjects",
-                    icon: BookOpen,
-                    color: "text-emerald-600",
-                    bg: "bg-emerald-50",
-                  },
-                  {
-                    label: "Average quiz score",
-                    value: "86%",
-                    caption: "Your practice results",
-                    icon: Target,
-                    color: "text-violet-600",
-                    bg: "bg-violet-50",
-                  },
-                ].map((stat) => {
-                  const Icon = stat.icon;
-
-                  return (
-                    <div
-                      key={stat.label}
-                      className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm shadow-slate-100/60"
-                    >
-
-                      <div className="flex items-center justify-between">
-
-                        <span className="text-xs font-medium text-slate-500">
-                          {stat.label}
-                        </span>
-
-                        <div
-                          className={`flex h-9 w-9 items-center justify-center rounded-xl ${stat.bg} ${stat.color}`}
-                        >
-                          <Icon size={18} />
-                        </div>
-
-                      </div>
-
-                      <p className="mt-3 text-[26px] font-bold tracking-tight text-slate-900">
-                        {stat.value}
-                      </p>
-
-                      <p className="mt-1 text-[11px] text-slate-400">
-                        {stat.caption}
-                      </p>
-
-                    </div>
-                  );
-                })}
-
-              </section>
-
-
-              {/* LEARNING AND STUDY GOAL */}
-
-              <section className="mb-7 grid grid-cols-1 gap-5 xl:grid-cols-[1.65fr_1fr]">
-
-
-                {/* CONTINUE LEARNING */}
-
-                <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm shadow-slate-100/60 sm:p-6">
-
-                  <div className="mb-5 flex items-center justify-between gap-3">
-
-                    <div>
-
-                      <h3 className="text-base font-bold text-slate-900">
-                        Continue learning
-                      </h3>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        Pick up where you left off
-                      </p>
-
-                    </div>
-
-                    <button
-                      onClick={() => setActiveNav("My Subjects")}
-                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-                    >
-                      View subjects
-                    </button>
-
-                  </div>
-
-
-                  <div className="space-y-3">
-
-                    {filteredSubjects.map((subject) => {
-                      const Icon = subject.icon;
-
-                      return (
-                        <div
-                          key={subject.id}
-                          className="rounded-xl border border-slate-100 p-4 transition hover:border-indigo-100 hover:bg-slate-50/50"
-                        >
-
-                          <div className="flex items-center gap-3">
-
-                            <div
-                              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${subject.background} ${subject.color}`}
-                            >
-                              <Icon size={21} />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-
-                              <h4 className="truncate text-sm font-semibold text-slate-800">
-                                {subject.name}
-                              </h4>
-
-                              <p className="mt-1 truncate text-[11px] text-slate-400">
-                                {subject.description}
-                              </p>
-
-                            </div>
-
-                            <span className="text-xs font-bold text-slate-600">
-                              {subject.progress}%
-                            </span>
-
-                          </div>
-
-
-                          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
-
-                            <div
-                              className="h-full rounded-full bg-indigo-500 transition-all"
-                              style={{
-                                width: `${subject.progress}%`,
-                              }}
-                            />
-
-                          </div>
-
-
-                          <div className="mt-2 flex items-center justify-between text-[10px] text-slate-400">
-
-                            <span>
-                              {subject.completed} of {subject.chapters} chapters completed
-                            </span>
-
-                            <button
-                              onClick={() =>
-                                handleOpenSubject(subject)
-                              }
-                              className="font-semibold text-indigo-600 hover:text-indigo-800"
-                            >
-                              Open subject →
-                            </button>
-
-                          </div>
-
-                        </div>
-                      );
-                    })}
-
-
-                    {filteredSubjects.length === 0 && (
-                      <p className="rounded-xl bg-slate-50 p-5 text-center text-sm text-slate-500">
-                        No subjects match your search.
-                      </p>
-                    )}
-
-                  </div>
-
-                </div>
-
-
-                {/* STUDY GOAL */}
-
-                <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm shadow-slate-100/60 sm:p-6">
-
-                  <div className="mb-5 flex items-center justify-between">
-
-                    <div>
-
-                      <h3 className="text-base font-bold text-slate-900">
-                        Your study goal
-                      </h3>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        Weekly learning target
-                      </p>
-
-                    </div>
-
-                    <div className="rounded-lg bg-indigo-50 p-2 text-indigo-600">
-                      <Target size={18} />
-                    </div>
-
-                  </div>
-
-
-                  <div className="flex flex-col items-center py-5">
-
-                    <div
-                      className="relative flex h-36 w-36 items-center justify-center rounded-full"
-                      style={{
-                        background:
-                          "conic-gradient(#6366f1 0deg 230deg, #eef0f7 230deg 360deg)",
-                      }}
-                    >
-
-                      <div className="flex h-[116px] w-[116px] flex-col items-center justify-center rounded-full bg-white">
-
-                        <span className="text-3xl font-bold text-slate-900">
-                          64%
-                        </span>
-
-                        <span className="text-[10px] text-slate-400">
-                          Completed
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    <p className="mt-4 text-sm font-semibold text-slate-800">
-                      Great progress!
-                    </p>
-
-                    <p className="mt-1 text-center text-xs leading-5 text-slate-400">
-                      You've studied 6.4 of your 10 weekly target hours.
-                    </p>
-
-                  </div>
-
-
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs">
-
-                    <span className="text-slate-500">
-                      Weekly target
-                    </span>
-
-                    <span className="font-bold text-slate-800">
-                      10 hours
-                    </span>
-
-                  </div>
-
-                </div>
-
-              </section>
-
-
-              {/* TASKS AND LEARNING TIP */}
-
-              <section className="grid grid-cols-1 gap-5 xl:grid-cols-[1.4fr_1fr]">
-
-
-                {/* UPCOMING TASKS */}
-
-                <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm shadow-slate-100/60 sm:p-6">
-
-                  <div className="mb-5 flex items-center justify-between">
-
-                    <div>
-
-                      <h3 className="text-base font-bold text-slate-900">
-                        Upcoming tasks
-                      </h3>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        Keep track of your academic work
-                      </p>
-
-                    </div>
-
-                    <button
-                      onClick={() => setActiveNav("Study Planner")}
-                      className="text-xs font-semibold text-indigo-600"
-                    >
-                      View planner
-                    </button>
-
-                  </div>
-
-
-                  <div className="space-y-2">
-
-                    {tasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="flex items-center gap-3 rounded-xl border border-slate-100 p-3"
-                      >
-
-                        <button
-                          onClick={() => toggleTask(task.id)}
-                          aria-label={
-                            task.done
-                              ? "Mark task incomplete"
-                              : "Complete task"
-                          }
-                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
-                            task.done
-                              ? "border-emerald-500 bg-emerald-500 text-white"
-                              : "border-slate-300 text-transparent hover:border-indigo-500"
-                          }`}
-                        >
-                          <CheckCircle2 size={15} />
-                        </button>
-
-
-                        <div className="min-w-0 flex-1">
-
-                          <p
-                            className={`truncate text-xs font-semibold ${
-                              task.done
-                                ? "text-slate-400 line-through"
-                                : "text-slate-800"
-                            }`}
-                          >
-                            {task.title}
-                          </p>
-
-                          <p className="mt-1 text-[10px] text-slate-400">
-                            {task.subject}
-                          </p>
-
-                        </div>
-
-
-                        <span className="shrink-0 text-[10px] text-slate-400">
-                          {task.done ? "Completed" : task.due}
-                        </span>
-
-                      </div>
-                    ))}
-
-                  </div>
-
-
-                  <p className="mt-4 text-[11px] text-slate-400">
-                    {completedTasks} of {tasks.length} tasks completed
-                  </p>
-
-                </div>
-
-
-                {/* LEARNING TIP */}
-
-                <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-5 sm:p-6">
-
-                  <div className="mb-4 flex items-center justify-between">
-
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
-                      <Sparkles size={20} />
-                    </div>
-
-                    <span className="rounded-full bg-white/80 px-3 py-1 text-[10px] font-semibold text-indigo-600">
-                      LEARNING TIP
-                    </span>
-
-                  </div>
-
-
-                  <h3 className="text-lg font-bold text-slate-900">
-                    Learn smarter, not just longer.
-                  </h3>
-
-                  <p className="mt-2 text-xs leading-6 text-slate-600">
-                    Try active recall. After studying a chapter, close
-                    your notes and explain the main concepts in your own
-                    words. Then use flashcards to check what you remember.
-                  </p>
-
-                  <button
-                    onClick={() => setActiveNav("Flashcards")}
-                    className="mt-5 flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-                  >
-                    Practice flashcards
-                    <ArrowUpRight size={15} />
-                  </button>
-
-                </div>
-
-              </section>
-
-            </>
+            <DashboardPage
+              userName={authUserName}
+              currentSemesterName={
+                currentSemester?.name ?? null
+              }
+              subjects={subjects}
+              chapters={chapters}
+              notes={notes}
+              search={search}
+              isLoading={
+                subjectsLoading ||
+                chaptersLoading ||
+                notesLoading
+              }
+              onNavigate={(page) => {
+                setActiveNav(page);
+                setSearch("");
+              }}
+              onOpenSubject={handleOpenSubject}
+              onOpenNote={(chapter) => {
+                setNotesReturnNav("Overview");
+                setSelectedSubjectId(chapter.subjectId);
+                setSelectedChapterId(chapter.id);
+                setActiveNav("Notes");
+              }}
+            />
 
 
           ) : activeNav === "My Semesters" ? (
@@ -2374,8 +1919,8 @@ function App() {
 
               <div className="flex min-h-[300px] items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="h-9 w-9 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
-                  <p className="text-sm font-medium text-slate-500">
+                  <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#DCE4EF] border-t-[#526B91]" />
+                  <p className="text-xs font-medium text-[#777C87]">
                     Loading your semesters...
                   </p>
                 </div>
@@ -2383,12 +1928,13 @@ function App() {
 
             ) : semestersError ? (
 
-              <div className="rounded-2xl border border-rose-100 bg-white p-8 text-center shadow-sm">
-                <h2 className="text-base font-bold text-slate-800">
+              <div className="rounded-xl border border-rose-100 bg-white p-8 text-center shadow-sm">
+
+                <h2 className="text-sm font-bold text-[#263653]">
                   We couldn't load your semesters.
                 </h2>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-xs text-[#777C87]">
                   {semestersError}
                 </p>
 
@@ -2397,10 +1943,11 @@ function App() {
                   onClick={() =>
                     setSemesterReloadToken((current) => current + 1)
                   }
-                  className="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                  className="mt-5 rounded-lg bg-[#263653] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1E2A41]"
                 >
                   Try again
                 </button>
+
               </div>
 
             ) : (
@@ -2422,9 +1969,9 @@ function App() {
               fallback={
                 <div className="flex min-h-[400px] items-center justify-center">
                   <div className="flex flex-col items-center gap-3">
-                    <div className="h-9 w-9 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
+                    <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#DCE4EF] border-t-[#526B91]" />
 
-                    <p className="text-sm font-medium text-slate-500">
+                    <p className="text-xs font-medium text-[#777C87]">
                       Loading your notebooks...
                     </p>
                   </div>
@@ -2467,8 +2014,9 @@ function App() {
 
               <div className="flex min-h-[300px] items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="h-9 w-9 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
-                  <p className="text-sm font-medium text-slate-500">
+                  <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#DCE4EF] border-t-[#526B91]" />
+
+                  <p className="text-xs font-medium text-[#777C87]">
                     Loading your subjects...
                   </p>
                 </div>
@@ -2476,12 +2024,13 @@ function App() {
 
             ) : (subjectsError || semestersError) ? (
 
-              <div className="rounded-2xl border border-rose-100 bg-white p-8 text-center shadow-sm">
-                <h2 className="text-base font-bold text-slate-800">
+              <div className="rounded-xl border border-rose-100 bg-white p-8 text-center shadow-sm">
+
+                <h2 className="text-sm font-bold text-[#263653]">
                   We couldn't load your learning data.
                 </h2>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-xs text-[#777C87]">
                   {subjectsError || semestersError}
                 </p>
 
@@ -2491,10 +2040,11 @@ function App() {
                     setSubjectReloadToken((current) => current + 1);
                     setSemesterReloadToken((current) => current + 1);
                   }}
-                  className="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                  className="mt-5 rounded-lg bg-[#263653] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1E2A41]"
                 >
                   Try again
                 </button>
+
               </div>
 
             ) : (
@@ -2519,8 +2069,9 @@ function App() {
 
               <div className="flex min-h-[300px] items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="h-9 w-9 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
-                  <p className="text-sm font-medium text-slate-500">
+                  <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#DCE4EF] border-t-[#526B91]" />
+
+                  <p className="text-xs font-medium text-[#777C87]">
                     Loading your chapters...
                   </p>
                 </div>
@@ -2528,12 +2079,13 @@ function App() {
 
             ) : chaptersError ? (
 
-              <div className="rounded-2xl border border-rose-100 bg-white p-8 text-center shadow-sm">
-                <h2 className="text-base font-bold text-slate-800">
+              <div className="rounded-xl border border-rose-100 bg-white p-8 text-center shadow-sm">
+
+                <h2 className="text-sm font-bold text-[#263653]">
                   We couldn't load your chapters.
                 </h2>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-xs text-[#777C87]">
                   {chaptersError}
                 </p>
 
@@ -2542,10 +2094,11 @@ function App() {
                   onClick={() =>
                     setChapterReloadToken((current) => current + 1)
                   }
-                  className="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                  className="mt-5 rounded-lg bg-[#263653] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1E2A41]"
                 >
                   Try again
                 </button>
+
               </div>
 
             ) : (
@@ -2596,7 +2149,7 @@ function App() {
 
             <Suspense
               fallback={
-                <div className="flex min-h-[400px] items-center justify-center text-sm text-slate-500">
+                <div className="flex min-h-[400px] items-center justify-center text-xs text-[#777C87]">
                   Loading notes editor...
                 </div>
               }
@@ -2666,6 +2219,7 @@ function App() {
 
             <ProfilePage />
 
+
           ) : activeNav === "Quizzes" ? (
 
             <QuizzesPage
@@ -2679,36 +2233,50 @@ function App() {
             />
 
 
+          ) : activeNav === "Settings" ? (
+
+            <SettingsPage
+              onNavigate={(page) => {
+                setActiveNav(page);
+                setSearch("");
+              }}
+            />
+
+
+          ) : activeNav === "Help & Support" ? (
+
+            <HelpSupportPage
+              onNavigate={(page) => {
+                setActiveNav(page);
+                setSearch("");
+              }}
+            />
+
+
           ) : (
 
-            <section className="flex min-h-[450px] flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white px-6 text-center shadow-sm">
+            <section className="flex min-h-[420px] flex-col items-center justify-center rounded-xl border border-[#E2DED8] bg-[#FDFCFA] px-6 text-center">
 
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#E8EDF4] text-[#526B91]">
 
-                {activeNav === "AI Assistant" ? (
-                  <Sparkles size={25} />
-                ) : (
-                  <FileText size={25} />
-                )}
+                <FileText size={22} />
 
               </div>
 
-
-              <h1 className="text-xl font-bold text-slate-900">
+              <h1 className="text-lg font-semibold text-[#263653]">
                 {activeNav}
               </h1>
 
-
-              <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+              <p className="mt-2 max-w-md text-xs leading-6 text-[#777C87]">
                 This section is part of the LearnSpace AI roadmap.
                 We'll build it step by step and connect it to your
                 learning workspace.
               </p>
 
-
               <button
+                type="button"
                 onClick={() => setActiveNav("Overview")}
-                className="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                className="mt-5 rounded-lg bg-[#263653] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1E2A41]"
               >
                 Return to dashboard
               </button>
@@ -2720,14 +2288,14 @@ function App() {
 
           {/* FOOTER */}
 
-          <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/70 pt-5 text-[10px] text-slate-400">
+          <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-[#E2DED8] pt-5 text-[9px] text-[#92939C]">
 
             <span>
-              © 2026 LearnSpace AI. Your intelligent learning space.
+              © 2026 LearnSpace AI
             </span>
 
             <span>
-              Built for better learning.
+              Your academic workspace
             </span>
 
           </footer>
