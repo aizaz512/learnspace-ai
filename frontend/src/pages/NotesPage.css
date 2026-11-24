@@ -82,18 +82,18 @@
 }
 
 .notes-editor .tiptap blockquote {
-  border-left: 3px solid #818cf8;
+  border-left: 3px solid #15803D;
   margin: 1rem 0;
   padding: 0.5rem 1rem;
-  background: #f8faff;
+  background: #F0FDF4;
   color: #475569;
   border-radius: 0 8px 8px 0;
 }
 
 .notes-editor .tiptap code {
   border-radius: 5px;
-  background: #f1f5f9;
-  color: #7c3aed;
+  background: #F1F5F2;
+  color: #166534;
   padding: 2px 5px;
   font-size: 0.9em;
   font-family: Consolas, monospace;
@@ -122,13 +122,13 @@
 }
 
 .notes-editor .tiptap a {
-  color: #4f46e5;
+  color: #15803D;
   text-decoration: underline;
   cursor: pointer;
 }
 
 .notes-editor .tiptap ::selection {
-  background: #c7d2fe;
+  background: #DCFCE7;
 }
 
 .notes-editor .tiptap p.is-editor-empty:first-child::before {
@@ -137,4 +137,44 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+
+/* LearnSpace AI brand alignment for the rich-text editor */
+.notes-editor .tiptap blockquote {
+  border-left-color: #15803D;
+  background: #F0FDF4;
+}
+
+.notes-editor .tiptap code {
+  background: #F1F5F2;
+  color: #166534;
+}
+
+.notes-editor .tiptap a {
+  color: #15803D;
+}
+
+.notes-editor .tiptap ::selection {
+  background: #DCFCE7;
+}
+
+
+/* LearnSpace AI brand alignment for the rich-text editor */
+.notes-editor .tiptap blockquote {
+  border-left-color: #15803D;
+  background: #F0FDF4;
+}
+
+.notes-editor .tiptap code {
+  background: #F1F5F2;
+  color: #166534;
+}
+
+.notes-editor .tiptap a {
+  color: #15803D;
+}
+
+.notes-editor .tiptap ::selection {
+  background: #DCFCE7;
 }

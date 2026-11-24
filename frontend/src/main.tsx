@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 import App from "./App";
 import "./index.css";
+import "./app-polish.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -1,0 +1,433 @@
+/* =========================================================
+   LEARNSPACE AI — SHARED UI POLISH
+   Alabaster + Forest Green
+   This layer normalizes legacy page styles without changing
+   page behavior, data flow, routes, or component state.
+========================================================= */
+
+:root {
+  --ls-bg: #F8FAF9;
+  --ls-surface: #FFFFFF;
+  --ls-surface-muted: #F1F5F2;
+  --ls-surface-hover: #ECFDF3;
+  --ls-green: #15803D;
+  --ls-green-strong: #166534;
+  --ls-green-soft: #F0FDF4;
+  --ls-green-tint: #DCFCE7;
+  --ls-ink: #0F172A;
+  --ls-muted: #475569;
+  --ls-subtle: #64748B;
+  --ls-line: #E2E8F0;
+  --ls-line-strong: #CBD5E1;
+  --ls-shadow: 0 12px 32px -26px rgba(15, 23, 42, 0.28);
+  --ls-radius-card: 18px;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--ls-bg);
+}
+
+body {
+  color: var(--ls-ink);
+}
+
+#root .ls-app-shell {
+  min-height: 100vh;
+  background: var(--ls-bg) !important;
+  color: var(--ls-ink);
+}
+
+#root .ls-sidebar-container {
+  width: 250px;
+  background: var(--ls-surface) !important;
+  border-right: 1px solid var(--ls-line);
+  box-shadow: 8px 0 28px -28px rgba(15, 23, 42, 0.26);
+}
+
+#root .ls-sidebar {
+  background: var(--ls-surface) !important;
+  color: var(--ls-ink);
+}
+
+.ls-sidebar-brand {
+  border-bottom: 1px solid var(--ls-line);
+}
+
+.ls-sidebar-logo {
+  background: var(--ls-green);
+  box-shadow: 0 5px 12px -8px rgba(21, 128, 61, 0.8);
+}
+
+.ls-sidebar-brand-title {
+  color: var(--ls-ink);
+}
+
+.ls-sidebar-brand-accent {
+  color: var(--ls-green);
+}
+
+.ls-sidebar-tagline {
+  color: var(--ls-subtle);
+}
+
+.ls-sidebar-navigation {
+  scrollbar-width: thin;
+  scrollbar-color: #D7E3DA transparent;
+}
+
+.ls-sidebar-group-title {
+  color: #94A3A0;
+}
+
+.ls-sidebar-nav-item {
+  min-height: 40px;
+  color: var(--ls-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.ls-sidebar-nav-item svg {
+  color: #718096;
+  flex: 0 0 auto;
+}
+
+.ls-sidebar-nav-item:hover {
+  color: var(--ls-green-strong);
+  background: #F5FAF6;
+  border-color: #E5F1E8;
+}
+
+.ls-sidebar-nav-item:hover svg {
+  color: var(--ls-green);
+}
+
+.ls-sidebar-nav-item.is-active {
+  color: var(--ls-green-strong);
+  background: var(--ls-green-soft);
+  border-color: #D7EEDC;
+  box-shadow: inset 3px 0 0 var(--ls-green);
+}
+
+.ls-sidebar-nav-item.is-active svg {
+  color: var(--ls-green);
+}
+
+.ls-ai-badge {
+  color: var(--ls-green-strong);
+  background: var(--ls-green-tint);
+}
+
+.ls-sidebar-bottom {
+  border-top: 1px solid var(--ls-line);
+}
+
+.ls-sidebar-ai-card {
+  background: #F5FAF6;
+  border-color: #DCEDE0;
+}
+
+.ls-sidebar-ai-card:hover {
+  background: var(--ls-green-soft);
+  border-color: #B9DFC3;
+}
+
+.ls-sidebar-ai-icon {
+  background: var(--ls-green);
+}
+
+.ls-sidebar-ai-title {
+  color: var(--ls-ink);
+}
+
+.ls-sidebar-ai-subtitle {
+  color: var(--ls-muted);
+}
+
+.ls-sidebar-ai-card > svg {
+  color: var(--ls-green);
+}
+
+.ls-sidebar-support-link {
+  color: var(--ls-muted);
+}
+
+.ls-sidebar-support-link:hover {
+  color: var(--ls-green-strong);
+  background: #F5FAF6;
+}
+
+.ls-sidebar-profile-button {
+  border-color: var(--ls-line);
+}
+
+.ls-sidebar-profile-button:hover {
+  background: #F8FAF9;
+}
+
+.ls-sidebar-avatar {
+  background: var(--ls-green);
+}
+
+.ls-sidebar-profile-button p:first-child {
+  color: var(--ls-ink);
+}
+
+.ls-sidebar-profile-button p:last-child {
+  color: var(--ls-subtle);
+}
+
+.ls-sidebar-profile-button > svg {
+  color: var(--ls-subtle);
+}
+
+#root .ls-main {
+  min-height: 100vh;
+  background: var(--ls-bg);
+}
+
+#root .ls-topbar {
+  height: 72px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ls-ink);
+  border-bottom: 1px solid var(--ls-line);
+  box-shadow: 0 4px 18px -17px rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ls-topbar h2 {
+  color: var(--ls-ink);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.ls-topbar input {
+  height: 38px;
+  border: 1px solid var(--ls-line);
+  border-radius: 11px;
+  background: #F8FAF9;
+  color: var(--ls-ink);
+  font-size: 12px;
+}
+
+.ls-topbar input:focus {
+  background: #FFFFFF;
+  border-color: #86C99A;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.10);
+}
+
+.ls-page-container {
+  width: 100%;
+  max-width: 1500px;
+  padding: 28px clamp(18px, 2.6vw, 36px) 38px;
+}
+
+.ls-page-container .page-enter {
+  animation: page-enter 240ms ease-out both;
+}
+
+.ls-page-container :where(button, a, input, textarea, select) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ls-page-container :where(input, textarea, select) {
+  border-color: var(--ls-line);
+  border-radius: 11px;
+  color: var(--ls-ink);
+}
+
+.ls-page-container :where(input, textarea, select):focus {
+  border-color: #86C99A;
+  outline-color: var(--ls-green);
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.09);
+}
+
+.ls-page-container :where(input, textarea, select)::placeholder {
+  color: #94A3B8;
+}
+
+.ls-page-container :where(button) {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.ls-page-container [class*="rounded-2xl"][class*="border"][class*="bg-white"],
+.ls-page-container [class*="rounded-xl"][class*="border"][class*="bg-white"] {
+  border-color: var(--ls-line);
+  box-shadow: var(--ls-shadow);
+}
+
+.ls-page-container [class*="border-dashed"] {
+  border-color: #CBD5D1;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.ls-page-container [class*="bg-slate-50"],
+.ls-page-container [class*="bg-gray-50"] {
+  background-color: #F8FAF9;
+}
+
+.ls-page-container [class*="bg-slate-100"],
+.ls-page-container [class*="bg-gray-100"] {
+  background-color: #F1F5F2;
+}
+
+#root main [class~="bg-[#F1F0ED]"],
+#root main [class~="bg-[#FAF9F7]"],
+#root main [class~="bg-[#FBFAF7]"] {
+  background-color: var(--ls-bg) !important;
+}
+
+#root main [class~="bg-[#FDFCFA]"] {
+  background-color: #FFFFFF !important;
+}
+
+#root main [class~="text-[#263653]"],
+#root main [class~="text-[#252D3D]"],
+#root main [class~="text-[#30364B]"],
+#root main [class~="text-[#34394E]"] {
+  color: var(--ls-ink) !important;
+}
+
+#root main [class~="text-[#526B91]"],
+#root main [class~="text-[#526B9F]"] {
+  color: var(--ls-green) !important;
+}
+
+#root main [class~="text-[#756185]"],
+#root main [class~="text-[#8170A8]"] {
+  color: var(--ls-green-strong) !important;
+}
+
+#root main [class~="text-[#777C87]"],
+#root main [class~="text-[#858895]"],
+#root main [class~="text-[#92939C]"] {
+  color: var(--ls-muted) !important;
+}
+
+#root main [class~="bg-[#E9EDF5]"],
+#root main [class~="bg-[#E8EDF4]"],
+#root main [class~="bg-[#E9EDF4]"],
+#root main [class~="bg-[#EEE9F3]"] {
+  background-color: var(--ls-green-soft) !important;
+}
+
+#root main [class~="bg-[#526B91]"],
+#root main [class~="bg-[#263653]"] {
+  background-color: var(--ls-green) !important;
+}
+
+#root main [class~="border-[#E1E0DE]"],
+#root main [class~="border-[#E2DED8]"],
+#root main [class~="border-[#EAE8E5]"] {
+  border-color: var(--ls-line) !important;
+}
+
+/* Keep secondary accents quiet and within the green-neutral system. */
+#root main [class~="bg-indigo-50"],
+#root main [class~="bg-blue-50"],
+#root main [class~="bg-emerald-50"],
+#root main [class~="bg-violet-50"],
+#root main [class~="bg-purple-50"] {
+  background-color: var(--ls-green-soft) !important;
+}
+
+#root main [class~="bg-indigo-100"],
+#root main [class~="bg-blue-100"],
+#root main [class~="bg-violet-100"],
+#root main [class~="bg-purple-100"] {
+  background-color: var(--ls-green-tint) !important;
+}
+
+#root main [class~="text-indigo-600"],
+#root main [class~="text-indigo-700"],
+#root main [class~="text-blue-600"],
+#root main [class~="text-blue-700"],
+#root main [class~="text-violet-600"],
+#root main [class~="text-violet-700"],
+#root main [class~="text-purple-600"],
+#root main [class~="text-purple-700"] {
+  color: var(--ls-green) !important;
+}
+
+#root main [class~="border-indigo-100"],
+#root main [class~="border-indigo-200"],
+#root main [class~="border-blue-100"],
+#root main [class~="border-blue-200"],
+#root main [class~="border-violet-100"],
+#root main [class~="border-violet-200"],
+#root main [class~="border-purple-100"],
+#root main [class~="border-purple-200"] {
+  border-color: #D7EEDC !important;
+}
+
+#learnspace-notification-panel {
+  border-color: var(--ls-line);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px -32px rgba(15, 23, 42, 0.35);
+}
+
+#learnspace-notification-panel button:hover {
+  background-color: #F5FAF6;
+}
+
+.notes-editor .tiptap {
+  color: #334155;
+  line-height: 1.9;
+  font-size: 14px;
+}
+
+.notes-editor .tiptap blockquote {
+  border-left-color: var(--ls-green);
+  background: var(--ls-green-soft);
+}
+
+.notes-editor .tiptap code {
+  background: #F1F5F2;
+  color: var(--ls-green-strong);
+}
+
+.notes-editor .tiptap a {
+  color: var(--ls-green);
+}
+
+@media (max-width: 1024px) {
+  #root .ls-sidebar-container {
+    width: min(280px, calc(100vw - 48px));
+  }
+
+  .ls-page-container {
+    padding: 24px 20px 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  #root .ls-topbar {
+    height: 64px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .ls-page-container {
+    padding: 20px 14px 28px;
+  }
+
+  .ls-sidebar-brand {
+    height: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-page-container .page-enter {
+    animation: none;
+  }
+}

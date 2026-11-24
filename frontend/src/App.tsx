@@ -166,24 +166,24 @@ function Sidebar({
     userName.trim().charAt(0).toUpperCase() || "S";
 
   return (
-    <div className="flex h-full flex-col bg-[#263653] text-white">
+    <div className="ls-sidebar flex h-full flex-col">
 
       {/* BRAND */}
 
-      <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-white/10 px-5">
+      <div className="ls-sidebar-brand flex h-[76px] shrink-0 items-center justify-between px-5">
 
         <div className="flex items-center gap-3">
 
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#526B91] text-white">
+          <div className="ls-sidebar-logo flex h-9 w-9 items-center justify-center rounded-xl text-white">
             <GraduationCap size={20} />
           </div>
 
           <div>
-            <h1 className="text-[15px] font-semibold tracking-tight text-white">
-              LearnSpace <span className="text-[#B6C3D8]">AI</span>
+            <h1 className="ls-sidebar-brand-title text-[15px] font-semibold tracking-tight">
+              LearnSpace <span className="ls-sidebar-brand-accent">AI</span>
             </h1>
 
-            <p className="mt-0.5 text-[9px] font-medium tracking-[0.12em] text-[#AEB9C9]">
+            <p className="ls-sidebar-tagline mt-0.5 text-[9px] font-medium tracking-[0.12em]">
               YOUR SMART LEARNING SPACE
             </p>
           </div>
@@ -206,12 +206,12 @@ function Sidebar({
 
       {/* NAVIGATION */}
 
-      <div className="flex-1 overflow-y-auto px-3 py-5">
+      <div className="ls-sidebar-navigation flex-1 overflow-y-auto px-3 py-5">
 
         {navigation.map((group) => (
-          <div className="mb-6" key={group.heading}>
+          <div className="ls-sidebar-group mb-6" key={group.heading}>
 
-            <p className="mb-2 px-3 text-[9px] font-semibold tracking-[0.15em] text-[#8998AF]">
+            <p className="ls-sidebar-group-title mb-2 px-3 text-[9px] font-semibold tracking-[0.15em]">
               {group.heading}
             </p>
 
@@ -239,10 +239,8 @@ function Sidebar({
                       onNavigate(item.label);
                       onClose?.();
                     }}
-                    className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] font-medium transition ${
-                      selected
-                        ? "bg-[#526B91] text-white shadow-sm"
-                        : "text-[#C4CCD8] hover:bg-white/10 hover:text-white"
+                    className={`ls-sidebar-nav-item group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-medium transition ${
+                      selected ? "is-active" : ""
                     }`}
                   >
 
@@ -261,7 +259,7 @@ function Sidebar({
                     </span>
 
                     {item.label === "AI Assistant" && (
-                      <span className="rounded px-1.5 py-0.5 text-[8px] font-semibold bg-[#756185] text-white">
+                      <span className="ls-ai-badge rounded px-1.5 py-0.5 text-[8px] font-semibold">
                         AI
                       </span>
                     )}
@@ -280,7 +278,7 @@ function Sidebar({
 
       {/* SIDEBAR BOTTOM AREA */}
 
-      <div className="shrink-0 space-y-3 border-t border-white/10 px-3 pb-4 pt-3">
+      <div className="ls-sidebar-bottom shrink-0 space-y-3 px-3 pb-4 pt-3">
 
         {/* COMPACT AI ASSISTANT SHORTCUT */}
 
@@ -290,20 +288,20 @@ function Sidebar({
             onNavigate("AI Assistant");
             onClose?.();
           }}
-          className="group flex w-full items-center gap-2.5 rounded-lg border border-white/10 bg-[#344766] px-2.5 py-2.5 text-left transition hover:border-[#8399BC]/50 hover:bg-[#3B506F]"
+          className="ls-sidebar-ai-card group flex w-full items-center gap-2.5 rounded-xl border px-2.5 py-2.5 text-left transition"
         >
 
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#756185] text-white">
+          <div className="ls-sidebar-ai-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white">
             <Sparkles size={15} />
           </div>
 
           <div className="min-w-0 flex-1">
 
-            <p className="text-[11px] font-semibold text-white">
+            <p className="ls-sidebar-ai-title text-[11px] font-semibold">
               AI study partner
             </p>
 
-            <p className="mt-0.5 truncate text-[9px] text-[#BFC9D8]">
+            <p className="ls-sidebar-ai-subtitle mt-0.5 truncate text-[9px]">
               Ask about your courses
             </p>
 
@@ -319,7 +317,7 @@ function Sidebar({
 
         {/* SUPPORT LINKS */}
 
-        <div className="space-y-0.5">
+        <div className="ls-sidebar-support-links space-y-0.5">
 
           <button
             type="button"
@@ -327,7 +325,7 @@ function Sidebar({
               onNavigate("Help & Support");
               onClose?.();
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium text-[#BEC6D3] transition hover:bg-white/10 hover:text-white"
+            className="ls-sidebar-support-link flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-medium transition"
           >
             <HelpCircle size={15} />
             Help & Support
@@ -339,7 +337,7 @@ function Sidebar({
               onNavigate("Settings");
               onClose?.();
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-medium text-[#BEC6D3] transition hover:bg-white/10 hover:text-white"
+            className="ls-sidebar-support-link flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-medium transition"
           >
             <Settings size={15} />
             Settings
@@ -356,10 +354,10 @@ function Sidebar({
             onOpenProfile();
             onClose?.();
           }}
-          className="flex w-full items-center gap-2.5 border-t border-white/10 px-2 pt-3 text-left transition hover:bg-white/5"
+          className="ls-sidebar-profile-button flex w-full items-center gap-2.5 border-t px-2 pt-3 text-left transition"
         >
 
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-[#526B91] text-xs font-semibold text-white">
+          <div className="ls-sidebar-avatar flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white">
             {avatarLetter}
           </div>
 
@@ -1705,7 +1703,7 @@ function App() {
   // ==========================================
 
   return (
-    <div className="min-h-screen bg-[#F3F1ED] text-[#252D3D]">
+    <div className="ls-app-shell min-h-screen bg-[#F8FAF9] text-[#0F172A]">
 
       {/* MOBILE OVERLAY */}
 
@@ -1722,7 +1720,7 @@ function App() {
       {/* SIDEBAR */}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[250px] transform border-r border-white/10 transition-transform duration-300 ${
+        className={`ls-sidebar-container fixed inset-y-0 left-0 z-50 w-[250px] transform border-r transition-transform duration-300 ${
           mobileOpen
             ? "translate-x-0"
             : "-translate-x-full"
@@ -1749,12 +1747,12 @@ function App() {
 
       {/* MAIN CONTENT */}
 
-      <main className="min-h-screen lg:pl-[250px]">
+      <main className="ls-main min-h-screen lg:pl-[250px]">
 
 
         {/* HEADER */}
 
-        <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-[#E2DED8] bg-[#FDFCFA]/95 px-5 backdrop-blur-md sm:px-8">
+        <header className="ls-topbar sticky top-0 z-30 flex h-[76px] items-center justify-between px-5 backdrop-blur-md sm:px-8">
 
           <div className="flex min-w-0 items-center gap-3">
 
@@ -1878,7 +1876,7 @@ function App() {
             PAGE CONTENT
         ====================================== */}
 
-        <div className="mx-auto max-w-[1500px] px-5 py-7 sm:px-8 sm:py-9">
+        <div className="ls-page-container mx-auto max-w-[1500px] px-5 py-7 sm:px-8 sm:py-9">
 
 
           {/* OVERVIEW */}

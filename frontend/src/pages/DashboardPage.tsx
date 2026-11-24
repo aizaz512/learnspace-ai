@@ -40,28 +40,28 @@ interface RecentNoteItem {
 
 const courseThemes = [
   {
-    background: "#E9EDF5",
-    icon: "#526B91",
-    progress: "#526B91",
-    border: "#DCE3EF",
+    background: "#F0FDF4",
+    icon: "#15803D",
+    progress: "#15803D",
+    border: "#BBF7D0",
   },
   {
-    background: "#EEE9F3",
-    icon: "#756185",
-    progress: "#756185",
-    border: "#E4DCEA",
+    background: "#ECFDF5",
+    icon: "#166534",
+    progress: "#16A34A",
+    border: "#D1FAE5",
   },
   {
-    background: "#F0EBE2",
-    icon: "#927D60",
-    progress: "#A18B6C",
-    border: "#E9E1D5",
+    background: "#F1F5F2",
+    icon: "#475569",
+    progress: "#64748B",
+    border: "#E2E8F0",
   },
   {
-    background: "#E9EAE9",
-    icon: "#697483",
-    progress: "#778494",
-    border: "#DEE1E3",
+    background: "#F8FAF9",
+    icon: "#166534",
+    progress: "#15803D",
+    border: "#E2E8F0",
   },
 ];
 
